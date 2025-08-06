@@ -1,0 +1,1223 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="utf-8"/>
+    <meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+    <title>SIS Project - Dashboard</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.3/css/all.min.css" rel="stylesheet"/>
+    <link href="https://fonts.googleapis.com/css2?family=Roboto:wght@400;500;700&display=swap" rel="stylesheet"/>
+    <style>
+        body {
+            font-family: 'Roboto', sans-serif;
+        }
+        .sidebar {
+            transition: all 0.3s;
+        }
+        .profile-dropdown {
+            display: none;
+        }
+        .profile-dropdown.show {
+            display: block;
+        }
+        tbody tr {
+            transition: background-color 0.2s ease, transform 0.2s ease, box-shadow 0.2s ease;
+        }
+
+        tbody tr:hover {
+            background-color: #e2e8f0 !important; /* Light blue-gray color with !important to ensure it applies */
+            transform: scale(1.02); /* Slightly enlarge the row */
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1); /* Add a shadow */
+        }
+        #viewProfileImageModal .modal-content {
+            width: 50%;
+            max-width: 400px;
+        }
+        .chart-container {
+            position: relative;
+            width: 100%;
+            min-height: 250px;
+        }
+    </style>
+</head>
+<body class="bg-gray-100">
+<div class="flex h-screen">
+    <!-- Sidebar -->
+    <aside class="fixed inset-y-0 left-0 w-72 bg-white shadow-xl rounded-tr-3xl rounded-br-3xl flex flex-col justify-between border border-gray-300">
+        <div>
+            <div class="flex items-center gap-4 px-8 py-8 border-b border-gray-300 ">
+                <img alt="School Logo, a classic maroon shield with gold trim and an open book in the center" class="w-20 h-20 rounded-lg shadow-md" height="80" src="images/logo.png" width="80"/>
+                <h1 class="text-3xl font-bold text-gray-800 select-none tracking-wide" >
+                    RUPP
+                </h1>
+            </div>
+            <nav class="mt-10 flex flex-col space-y-3 px-6">
+                <a class="flex items-center gap-4 px-5 py-3 rounded-lg text-gray-700 hover:bg-gray-200 hover:text-gray-900 transition" href="dashboard.html">
+                    <i class="fas fa-home text-lg"></i>
+                    <span class="font-semibold text-lg">Dashboard</span>
+                </a>
+                <a aria-current="page" class="flex items-center gap-4 px-5 py-3 rounded-lg bg-gray-800 text-white shadow-lg font-semibold text-lg" href="student.html">
+                    <i class="fas fa-users text-lg"></i>
+                    <span class="font-semibold text-lg">Students</span>
+                </a>
+                <a class="flex items-center gap-4 px-5 py-3 rounded-lg text-gray-700 hover:bg-gray-200 hover:text-gray-900 transition" href="course.html">
+                    <i class="fas fa-book text-lg"></i>
+                    <span class="font-semibold text-lg">Courses</span>
+                </a>
+                <a class="flex items-center gap-4 px-5 py-3 rounded-lg text-gray-700 hover:bg-gray-200 hover:text-gray-900 transition" href="teacher.html">
+                    <i class="fas fa-chalkboard-teacher text-lg"></i>
+                    <span class="font-semibold text-lg">Teachers</span>
+                </a>
+                <a class="flex items-center gap-4 px-5 py-3 rounded-lg text-gray-700 hover:bg-gray-200 hover:text-gray-900 transition" href="enrollment.html">
+                    <i class="fas fa-clipboard-list text-lg"></i>
+                    <span>Enrollments</span>
+                </a>
+            </nav>
+        </div>
+        <div class="px-6 py-6 border-t border-gray-300 text-center text-gray-500 text-sm select-none">
+            © 2025 Royal University of Phnom Penh. All rights reserved.
+        </div>
+    </aside>
+
+    <!-- Main Content -->
+    <div class="flex-1 flex flex-col overflow-hidden ml-72">
+        <header class="bg-white shadow-sm z-10">
+            <div class="flex items-center justify-between px-4 py-4">
+                <!-- Mobile menu button -->
+                <button class="md:hidden text-gray-500 focus:outline-none">
+                    <i class="fas fa-bars fa-lg"></i>
+                </button>
+
+                <h1 class="text-2xl font-bold text-gray-800">Manage Student</h1>
+
+                <!-- Profile dropdown and Search input -->
+                <div class="flex items-center space-x-4">
+                    <button id="filterButton" class="px-5 py-2 bg-gray-700 text-white rounded-lg hover:bg-gray-900 transition">
+                        <i class="fas fa-chart-pie mr-2"></i>Chart
+                    </button>
+                    <div class="relative">
+                        <input type="text" id="searchInput" placeholder="Search students..." class="border rounded-full px-4 py-2 pl-10 w-96 focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 transition duration-200 ease-in-out">
+                        <i class="fas fa-search absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-500"></i>
+                    </div>
+                    <div class="relative">
+                        <button id="profileButton" class="flex items-center space-x-2 focus:outline-none">
+                            <div class="w-10 h-10 rounded-full overflow-hidden bg-gray-200">
+                                <img id="profileImage" src="" alt="Profile" class="w-full h-full object-cover">
+                            </div>
+                            <span id="profileName" class="font-medium"></span>
+                            <i class="fas fa-chevron-down"></i>
+                        </button>
+
+                        <div id="profileDropdown" class="profile-dropdown absolute right-0 mt-2 w-48 bg-white rounded-md shadow-lg py-1 z-20">
+                            <a href="#" class="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-100" onclick="showAdminInfo()">
+                                <i class="fas fa-user mr-2"></i>Profile
+                            </a>
+                            <a href="#" class="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-100">
+                                <i class="fas fa-cog mr-2"></i>Settings
+                            </a>
+                            <a href="#" class="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-100" onclick="logout()">
+                                <i class="fas fa-sign-out-alt mr-2"></i>Logout
+                            </a>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div id="filterFormContainer" class="hidden px-6 py-4 bg-white border-b border-gray-200 shadow-sm">
+                <div class="flex flex-col">
+                    <form class="grid grid-cols-1 md:grid-cols-3 gap-6">
+                        <!-- Gender Distribution Chart -->
+                        <div class="bg-white p-3 rounded-lg shadow border border-gray-200">
+                            <h3 class="text-md font-medium text-gray-700 mb-2">Gender Distribution</h3>
+                            <div class="chart-container" style="height: 100px;">
+                                <canvas id="genderPieChart"></canvas>
+                            </div>
+                        </div>
+
+                        <!-- Another Control Example -->
+                        <div class="bg-white p-3 rounded-lg shadow border border-gray-200">
+                            <h3 class="text-md font-medium text-gray-700 mb-2">Register By Year</h3>
+                            <div class="chart-container" style="height: 200px;">
+                                <canvas id="statusBarChart"></canvas>
+                            </div>
+                        </div>
+                        <div class="bg-white p-3 rounded-lg shadow border border-gray-200">
+                            <h3 class="text-md font-medium text-gray-700 mb-2">Register By Year</h3>
+                            <div class="chart-container" style="height: 250px;">
+                                <canvas id=""></canvas>
+                            </div>
+                        </div>
+                    </form>
+                </div>
+            </div>
+        </header>
+
+        <!-- Main Content Area -->
+        <!-- Main Content Area -->
+        <main class="flex-1 overflow-x-hidden overflow-y-auto bg-gray-100 p-4">
+            <div class="mt-4 bg-white p-4 rounded-lg shadow">
+                <div class="flex items-center justify-between mb-4">
+                    <h2 class="text-lg font-semibold text-gray-800">Student List</h2>
+                    <div class="w-64">
+                        <div class="relative">
+                            <select id="genderFilter" onchange="filterByGender()"
+                                    class="appearance-none w-full px-4 py-2 pr-10 text-sm border border-gray-300 rounded-xl shadow-sm focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500 bg-white text-gray-800">
+                                <option value="">All</option>
+                                <option value="MALE">Male</option>
+                                <option value="FEMALE">Female</option>
+                                <option value="OTHER">Other</option>
+                            </select>
+                            <div class="pointer-events-none absolute inset-y-0 right-0 flex items-center pr-3">
+                                <svg class="h-5 w-5 text-gray-400" xmlns="http://www.w3.org/2000/svg" fill="currentColor"
+                                     viewBox="0 0 20 20">
+                                    <path fill-rule="evenodd"
+                                          d="M5.23 7.21a.75.75 0 011.06.02L10 11.086l3.71-3.854a.75.75 0 111.08 1.04l-4.25 4.417a.75.75 0 01-1.08 0L5.21 8.27a.75.75 0 01.02-1.06z"
+                                          clip-rule="evenodd" />
+                                </svg>
+                            </div>
+                        </div>
+                    </div>
+                    <table id="studentTable">
+                        
+                    </table>
+                    <button id="registerButton" class="px-5 py-2 bg-gray-800 text-white rounded-lg hover:bg-gray-900 transition">
+                        <i class="fas fa-plus mr-2"></i> Register Student
+                    </button>
+                </div>
+                <div class="overflow-x-auto bg-white rounded-xl shadow-lg">
+                    <table class="min-w-full divide-y divide-gray-200">
+                        <thead>
+                        <tr class="bg-gray-700 text-white">
+                            <th scope="col" class="px-6 py-4 text-left text-xs font-semibold uppercase tracking-wider">
+                                <div class="flex items-center space-x-1">
+                                    <span>Name</span>
+                                    <svg class="w-4 h-4 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M7 11l5-5m0 0l5 5m-5-5v12"/>
+                                    </svg>
+                                </div>
+                            </th>
+                            <th class="px-6 py-4 text-left text-xs font-semibold uppercase tracking-wider">Email</th>
+                            <th class="px-6 py-4 text-left text-xs font-semibold uppercase tracking-wider">DOB</th>
+                            <th class="px-6 py-4 text-left text-xs font-semibold uppercase tracking-wider">Gender</th>
+                            <th class="px-6 py-4 text-left text-xs font-semibold uppercase tracking-wider">Address</th>
+                            <th class="px-6 py-4 text-left text-xs font-semibold uppercase tracking-wider">Phone</th>
+                            <th class="px-6 py-4 text-left text-xs font-semibold uppercase tracking-wider">Guardian</th>
+                        </tr>
+                        </thead>
+                        <tbody id="studentsTableBody" class="divide-y divide-gray-200 bg-white">
+                        <tr class="hover:bg-gray-50 transition-colors">
+                            <td class="px-6 py-4 whitespace-nowrap">
+                                <div class="flex items-center">
+                                    <div class="h-10 w-10 flex-shrink-0">
+                                        <img class="h-10 w-10 rounded-full object-cover border-2 border-gray-200" src="" alt="Student">
+                                    </div>
+                                    <div class="ml-4">
+                                        <div class="text-sm font-medium text-gray-900">John Doe</div>
+                                        <div class="text-sm text-gray-500">ID: STU001</div>
+                                    </div>
+                                </div>
+                            </td>
+                            <td class="px-6 py-4 whitespace-nowrap">
+                                <div class="text-sm text-gray-900">john@example.com</div>
+                            </td>
+                            <td class="px-6 py-4 whitespace-nowrap">
+                                <div class="text-sm text-gray-900">2000-01-01</div>
+                            </td>
+                            <td class="px-6 py-4 whitespace-nowrap">
+            <span class="px-3 py-1 inline-flex text-xs leading-5 font-semibold rounded-full bg-green-100 text-green-800">
+                Male
+            </span>
+                            </td>
+                            <td class="px-6 py-4">
+                                <div class="text-sm text-gray-900 max-w-xs truncate">123 Street, City</div>
+                            </td>
+                            <td class="px-6 py-4 whitespace-nowrap">
+                                <div class="text-sm text-gray-900">+1 234-567-8900</div>
+                            </td>
+                            <td class="px-6 py-4 whitespace-nowrap">
+                                <div class="text-sm text-gray-900">Jane Doe</div>
+                            </td>
+                        </tr>
+                        </tbody>
+                    </table>
+                    <div class="pagination-controls flex justify-between items-center mt-4">
+                        <button id="prevPageButton" class="px-4 py-2 bg-gray-600 text-white rounded hover:bg-gray-700">Previous</button>
+                        <span id="pageInfo" class="text-gray-700">Page <span id="currentPage">1</span>/<span id="totalPages">1</span></span>
+                        <button id="nextPageButton" class="px-4 py-2 bg-indigo-600 text-white rounded hover:bg-indigo-700">Next</button>
+                    </div>
+                </div>
+            </div>
+        </main>
+    </div>
+</div>
+
+<!-- Register Student Modal -->
+<div id="registerModal" class="fixed inset-0 bg-gray-600 bg-opacity-50 hidden flex justify-center items-center">
+    <div class="bg-white p-6 rounded-lg shadow-lg w-1/2">
+        <h2 class="text-lg font-semibold text-gray-800 mb-4">Register New Student</h2>
+        <form id="registerStudentForm" enctype="multipart/form-data">
+            <div class="mb-4">
+                <label for="name" class="block text-sm font-medium text-gray-700">Name</label>
+                <input type="text" id="name" name="studentRequest.name" class="mt-1 block w-full border-gray-300 rounded-md shadow-sm" required>
+            </div>
+            <div class="mb-4">
+                <label for="email" class="block text-sm font-medium text-gray-700">Email</label>
+                <input type="email" id="email" name="studentRequest.email" class="mt-1 block w-full border-gray-300 rounded-md shadow-sm" required>
+            </div>
+            <div class="mb-4">
+                <label for="dob" class="block text-sm font-medium text-gray-700">Date of Birth</label>
+                <input type="date" id="dob" name="studentRequest.dob" class="mt-1 block w-full border-gray-300 rounded-md shadow-sm" required>
+            </div>
+            <div class="mb-4">
+                <label for="gender" class="block text-sm font-medium text-gray-700">Gender</label>
+                <select id="gender" name="studentRequest.gender" class="mt-1 block w-full border-gray-300 rounded-md shadow-sm" required>
+                    <option value="">Select Gender</option>
+                    <option value="MALE">Male</option>
+                    <option value="FEMALE">Female</option>
+                    <option value="OTHER">Other</option>
+                </select>
+            </div>
+            <div class="mb-4">
+                <label for="address" class="block text-sm font-medium text-gray-700">Address</label>
+                <textarea id="address" name="studentRequest.address" class="mt-1 block w-full border-gray-300 rounded-md shadow-sm" required></textarea>
+            </div>
+            <div class="mb-4">
+                <label for="phone" class="block text-sm font-medium text-gray-700">Phone</label>
+                <input type="tel" id="phone" name="studentRequest.phone" class="mt-1 block w-full border-gray-300 rounded-md shadow-sm" required>
+            </div>
+            <div class="mb-4">
+                <label for="guardian" class="block text-sm font-medium text-gray-700">Guardian</label>
+                <input type="text" id="guardian" name="studentRequest.guardian" class="mt-1 block w-full border-gray-300 rounded-md shadow-sm" required>
+            </div>
+            <div class="mb-4">
+                <label for="file" class="block text-sm font-medium text-gray-700">Profile Picture</label>
+                <input type="file" id="file" name="file" class="mt-1 block w-full border-gray-300 rounded-md shadow-sm" required>
+            </div>
+            <div class="mt-6 flex justify-end">
+                <button type="button" id="closeModalButton" class="px-4 py-2 bg-gray-600 text-white rounded hover:bg-gray-700 mr-2">Cancel</button>
+                <button type="submit" class="px-4 py-2 bg-indigo-600 text-white rounded hover:bg-indigo-700">Register</button>
+            </div>
+        </form>
+    </div>
+</div>
+
+<!-- Update Student Modal -->
+<div id="updateStudentModal" class="fixed inset-0 bg-gray-600 bg-opacity-50 hidden flex justify-center items-center">
+    <div class="bg-white p-6 rounded-lg shadow-lg w-1/3">
+        <h2 class="text-lg font-semibold text-gray-800 mb-4">Update Student</h2>
+        <form id="updateStudentForm">
+            <div class="mb-4">
+                <label for="updateName" class="block text-sm font-medium text-gray-700">Name</label>
+                <input type="text" id="updateName" name="name" class="mt-1 block w-full border-gray-300 rounded-md shadow-sm" required>
+            </div>
+            <div class="mb-4">
+                <label for="updateEmail" class="block text-sm font-medium text-gray-700">Email</label>
+                <input type="email" id="updateEmail" name="email" class="mt-1 block w-full border-gray-300 rounded-md shadow-sm" required>
+            </div>
+            <div class="mb-4">
+                <label for="updateDob" class="block text-sm font-medium text-gray-700">Date of Birth</label>
+                <input type="date" id="updateDob" name="dob" class="mt-1 block w-full border-gray-300 rounded-md shadow-sm" required>
+            </div>
+            <div class="mb-4">
+                <label for="updateGender" class="block text-sm font-medium text-gray-700">Gender</label>
+                <select id="updateGender" name="gender" class="mt-1 block w-full border-gray-300 rounded-md shadow-sm" required>
+                    <option value="">Select Gender</option>
+                    <option value="MALE">Male</option>
+                    <option value="FEMALE">Female</option>
+                    <option value="OTHER">Other</option>
+                </select>
+            </div>
+            <div class="mb-4">
+                <label for="updateAddress" class="block text-sm font-medium text-gray-700">Address</label>
+                <textarea id="updateAddress" name="address" class="mt-1 block w-full border-gray-300 rounded-md shadow-sm" required></textarea>
+            </div>
+            <div class="mb-4">
+                <label for="updatePhone" class="block text-sm font-medium text-gray-700">Phone</label>
+                <input type="tel" id="updatePhone" name="phone" class="mt-1 block w-full border-gray-300 rounded-md shadow-sm" required>
+            </div>
+            <div class="mb-4">
+                <label for="updateGuardian" class="block text-sm font-medium text-gray-700">Guardian</label>
+                <input type="text" id="updateGuardian" name="guardian" class="mt-1 block w-full border-gray-300 rounded-md shadow-sm" required>
+            </div>
+            <div class="mt-6 flex justify-end">
+                <button type="button" id="closeUpdateModalButton" class="px-4 py-2 bg-gray-600 text-white rounded hover:bg-gray-700 mr-2">Cancel</button>
+                <button type="submit" class="px-4 py-2 bg-indigo-600 text-white rounded hover:bg-indigo-700">Update</button>
+            </div>
+        </form>
+    </div>
+</div>
+
+<!-- View and Update Profile Image Modal -->
+<div id="viewProfileImageModal" class="fixed inset-0 bg-gray-600 bg-opacity-50 hidden flex justify-center items-center">
+    <div class="modal-content bg-white p-6 rounded-lg shadow-lg max-h-screen overflow-y-auto">
+        <h2 class="text-lg font-semibold text-gray-800 mb-4">Profile Image</h2>
+        <img id="profileImageLarge" src="" alt="Profile Image" class="w-full h-auto rounded-lg mb-4">
+        <form id="updateProfileImageForm" enctype="multipart/form-data">
+            <div class="mb-4">
+                <label for="updateFile" class="block text-sm font-medium text-gray-700">Update Profile Picture</label>
+                <input type="file" id="updateFile" name="file" class="mt-1 block w-full border-gray-300 rounded-md shadow-sm" required>
+            </div>
+            <div class="mt-6 flex justify-end">
+                <button type="button" id="closeViewProfileImageModalButton" class="px-4 py-2 bg-gray-600 text-white rounded hover:bg-gray-700 mr-2">Cancel</button>
+                <button type="submit" class="px-4 py-2 bg-indigo-600 text-white rounded hover:bg-indigo-700">Update</button>
+            </div>
+        </form>
+    </div>
+</div>
+
+
+<!-- Student Details Modal -->
+<div id="studentDetailsModal" class="fixed inset-0 bg-gray-600 bg-opacity-50 hidden flex justify-center items-center z-50 p-4">
+    <div class="bg-white rounded-lg shadow-xl w-full max-w-5xl max-h-[90vh] flex flex-col md:flex-row overflow-hidden">
+        <!-- Left Side: Student Information -->
+        <div class="w-full md:w-1/2 p-6 overflow-y-auto">
+            <div class="flex justify-between items-start mb-6">
+                <h2 class="text-2xl font-bold text-gray-800">Student Details</h2>
+                <button id="closeDetailsModalButton" class="text-gray-500 hover:text-gray-700">
+                    <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12" />
+                    </svg>
+                </button>
+            </div>
+
+            <!-- Profile Picture (Mobile View) -->
+            <div class="md:hidden flex justify-center mb-6">
+                <div class="relative">
+                    <img id="studentImageMobile" src="" alt="Student Image" class="w-32 h-32 rounded-full object-cover border-4 border-white shadow-md">
+                    <button onclick="showViewProfileImageModal(currentStudent)" class="absolute bottom-0 right-0 p-2 bg-indigo-600 text-white rounded-full hover:bg-indigo-700 transition-colors">
+                        <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 9a2 2 0 012-2h.93a2 2 0 001.664-.89l.812-1.22A2 2 0 0110.07 4h3.86a2 2 0 011.664.89l.812 1.22A2 2 0 0018.07 7H19a2 2 0 012 2v9a2 2 0 01-2 2H5a2 2 0 01-2-2V9z" />
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 13a3 3 0 11-6 0 3 3 0 016 0z" />
+                        </svg>
+                    </button>
+                </div>
+            </div>
+
+            <!-- Basic Information -->
+            <div class="grid grid-cols-1 md:grid-cols-2 gap-4 mb-6">
+                <div>
+                    <label class="block text-sm font-medium text-gray-500 mb-1">Full Name</label>
+                    <p id="studentName" class="text-lg font-semibold text-gray-800"></p>
+                </div>
+                <div class="md:col-span-2">
+                    <label class="block text-sm font-medium text-gray-500 mb-1">Email</label>
+                    <p id="studentEmail" class="text-lg font-semibold text-gray-800"></p>
+                </div>
+            </div>
+
+            <!-- Personal Information Section -->
+            <div class="border-t border-gray-200 pt-4 mb-6">
+                <h3 class="text-lg font-semibold text-gray-700 mb-4">Personal Information</h3>
+                <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                    <div>
+                        <label class="block text-sm font-medium text-gray-500 mb-1">Date of Birth</label>
+                        <p id="studentDob" class="text-gray-800"></p>
+                    </div>
+                    <div>
+                        <label class="block text-sm font-medium text-gray-500 mb-1">Gender</label>
+                        <p id="studentGender" class="text-gray-800"></p>
+                    </div>
+                    <div class="md:col-span-2">
+                        <label class="block text-sm font-medium text-gray-500 mb-1">Address</label>
+                        <p id="studentAddress" class="text-gray-800"></p>
+                    </div>
+                    <div>
+                        <label class="block text-sm font-medium text-gray-500 mb-1">Phone Number</label>
+                        <p id="studentPhone" class="text-gray-800"></p>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Guardian Information Section -->
+            <div class="border-t border-gray-200 pt-4">
+                <h3 class="text-lg font-semibold text-gray-700 mb-4">Guardian Information</h3>
+                <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                    <div>
+                        <label class="block text-sm font-medium text-gray-500 mb-1">Guardian</label>
+                        <p id="studentGuardian" class="text-gray-800"></p>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Action Buttons -->
+            <div class="mt-auto flex flex-wrap justify-end gap-3">
+                <button id="enrollStudentButton" class="px-5 py-2 bg-indigo-600 text-white rounded-md hover:bg-indigo-700 transition">
+                    Enroll
+                </button>
+                <button onclick="showUpdateStudentModal(currentStudent)" class="px-4 py-2 bg-blue-600 text-white rounded-md hover:bg-blue-700 transition-colors flex items-center">
+                    <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 mr-2" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z" />
+                    </svg>
+                    Edit Student
+                </button>
+                <button onclick="showConfirmDeactivateModal(currentStudent.id)" class="px-4 py-2 bg-red-600 text-white rounded-md hover:bg-red-700 transition-colors flex items-center">
+                    <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 mr-2" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M18 12H6" />
+                    </svg>
+                    Deactivate
+                </button>
+            </div>
+        </div>
+
+        <!-- Right Side: Full-Height Student Image (Desktop) -->
+        <div class="hidden md:flex md:w-1/2 bg-gray-50 items-center justify-center p-8 border-l border-gray-200 relative">
+            <img id="studentImage" src="" alt="Student Image" class="w-full h-full object-contain rounded-lg" style="border-radius: 0.5rem;">
+            <button onclick="showViewProfileImageModal(currentStudent)" class="absolute bottom-4 right-4 p-3 bg-white rounded-full shadow-md hover:bg-gray-100 transition-colors">
+                <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6 text-gray-600" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 9a2 2 0 012-2h.93a2 2 0 001.664-.89l.812-1.22A2 2 0 0110.07 4h3.86a2 2 0 011.664.89l.812 1.22A2 2 0 0018.07 7H19a2 2 0 012 2v9a2 2 0 01-2 2H5a2 2 0 01-2-2V9z" />
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 13a3 3 0 11-6 0 3 3 0 016 0z" />
+                </svg>
+            </button>
+        </div>
+    </div>
+</div>
+<!-- Confirmation Modal -->
+<div id="confirmDeactivateModal" class="fixed inset-0 bg-gray-600 bg-opacity-50 hidden flex justify-center items-center">
+    <div class="bg-white p-6 rounded-lg shadow-lg w-1/3">
+        <h2 class="text-lg font-semibold text-gray-800 mb-4">Confirm Deactivation</h2>
+        <p class="text-gray-600 mb-6">Are you sure you want to deactivate this student?</p>
+        <div class="flex justify-end space-x-4">
+            <button id="cancelDeactivateButton" class="px-4 py-2 bg-gray-600 text-white rounded hover:bg-gray-700">Cancel</button>
+            <button id="confirmDeactivateButton" class="px-4 py-2 bg-red-600 text-white rounded hover:bg-red-700">Deactivate</button>
+        </div>
+    </div>
+</div>
+
+<div id="enrollModal" class="fixed inset-0 bg-gray-600 bg-opacity-50 hidden flex justify-center items-center">
+    <div class="bg-white p-6 rounded-lg shadow-lg w-1/2">
+        <h2 class="text-lg font-semibold text-gray-800 mb-4">Enroll Student</h2>
+        <form id="enrollForm">
+            <div class="mb-4">
+                <label for="courseSearch" class="block text-sm font-medium text-gray-700">Courses</label>
+                <input id="courseSearch" type="text" placeholder="Search courses" class="w-full border border-gray-300 rounded-md shadow-sm px-3 py-2 focus:outline-none focus:ring-2 focus:ring-gray-800" />
+                <ul id="courseSearchResults" class="absolute bg-white border border-gray-300 rounded-md shadow-lg mt-1 w-full z-10 hidden"></ul>
+                <div id="selectedCoursesContainer" class="mt-2">
+                    <!-- Selected courses will be displayed here -->
+                </div>
+            </div>
+            <div class="mb-4">
+                <label for="semester" class="block text-sm font-medium text-gray-700">Semester</label>
+                <select id="semester" name="semester" class="mt-1 block w-full border-gray-300 rounded-md shadow-sm" required>
+                    <option value="1">Semester 1</option>
+                    <option value="2">Semester 2</option>
+                </select>
+            </div>
+            <div class="mb-4">
+                <label for="academicYear" class="block text-sm font-medium text-gray-700">Academic Year</label>
+                <select id="academicYear" name="academicYear" class="mt-1 block w-full border-gray-300 rounded-md shadow-sm" required>
+                    <option value="2025-2026">2025-2026</option>
+                    <option value="2026-2027">2026-2027</option>
+                    <option value="2027-2028">2027-2028</option>
+                    <option value="2028-2029">2028-2029</option>
+                    <option value="2029-2030">2029-2030</option>
+                </select>
+            </div>
+            <div class="mt-6 flex justify-end">
+                <button type="button" id="closeEnrollModalButton" class="px-4 py-2 bg-gray-600 text-white rounded hover:bg-gray-700 mr-2">Cancel</button>
+                <button type="submit" class="px-4 py-2 bg-indigo-600 text-white rounded hover:bg-indigo-700">Enroll</button>
+            </div>
+        </form>
+    </div>
+</div>
+
+<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/sweetalert2@11.10.5/dist/sweetalert2.all.min.js"></script>
+<script>
+
+    const token = localStorage.getItem('token');
+    let currentStudent = {};
+    let studentToDeactivate = null;
+
+    let currentPage = 0; // Current page
+    const pageSize = 10; // Number of students per page
+
+    // Fetch paginated students
+    async function fetchStudents() {
+        try {
+            const token = localStorage.getItem('token');
+            if (!token) {
+                throw new Error('Authorization token is missing');
+            }
+
+            const response = await fetch(`/api/admin/students/pagination?page=${currentPage}&size=${pageSize}`, {
+                method: 'GET',
+                headers: {
+                    'Authorization': `Bearer ${token}`
+                }
+            });
+
+            if (!response.ok) {
+                throw new Error('Failed to fetch paginated students');
+            }
+
+            const students = await response.json();
+            updateStudentTable(students); // Update the table with the fetched data
+        } catch (error) {
+            console.error('Error fetching students:', error);
+            Swal.fire('Error', 'Failed to fetch students', 'error');
+        }
+    }
+
+    // Update the student table
+    function updateStudentTable(students) {
+        const studentsTableBody = document.getElementById('studentsTableBody');
+        studentsTableBody.innerHTML = ''; // Clear the table
+
+        if (students.length === 0) {
+            const row = document.createElement('tr');
+            row.innerHTML = `<td colspan="7" class="text-center py-4">No students found</td>`;
+            studentsTableBody.appendChild(row);
+            return;
+        }
+
+        students.forEach(student => {
+            const row = document.createElement('tr');
+            row.classList.add('hover:bg-gray-50', 'transition-colors');
+            row.innerHTML = `
+                <td class="px-6 py-4 whitespace-nowrap">
+                    <div class="flex items-center">
+                        <div class="h-10 w-10 flex-shrink-0">
+                            <img class="h-10 w-10 rounded-full object-cover border-2 border-gray-200" src="${student.profilePicture || 'static/images/default-student.png'}" alt="Student">
+                        </div>
+                        <div class="ml-4">
+                            <div class="text-sm font-medium text-gray-900">${student.name}</div>
+                            <div class="text-sm text-gray-500">ID: ${student.id}</div>
+                        </div>
+                    </div>
+                </td>
+                <td class="px-6 py-4 whitespace-nowrap">
+                    <div class="text-sm text-gray-900">${student.email}</div>
+                </td>
+                <td class="px-6 py-4 whitespace-nowrap">
+                    <div class="text-sm text-gray-900">${student.dob}</div>
+                </td>
+                <td class="px-6 py-4 whitespace-nowrap">
+                    <span class="px-3 py-1 inline-flex text-xs leading-5 font-semibold rounded-full bg-green-100 text-green-800">
+                        ${student.gender}
+                    </span>
+                </td>
+                <td class="px-6 py-4">
+                    <div class="text-sm text-gray-900 max-w-xs truncate">${student.address}</div>
+                </td>
+                <td class="px-6 py-4 whitespace-nowrap">
+                    <div class="text-sm text-gray-900">${student.phone}</div>
+                </td>
+                <td class="px-6 py-4 whitespace-nowrap">
+                    <div class="text-sm text-gray-900">${student.guardian}</div>
+                </td>
+            `;
+            row.addEventListener('click', () => showStudentDetails(student));
+            studentsTableBody.appendChild(row);
+        });
+    }
+
+    // Handle pagination controls
+    document.getElementById('nextPageButton').addEventListener('click', () => {
+        currentPage++;
+        fetchStudents();
+    });
+
+    document.getElementById('prevPageButton').addEventListener('click', () => {
+        if (currentPage > 0) {
+            currentPage--;
+            fetchStudents();
+        }
+    });
+
+    // Initial fetch
+    fetchStudents();
+
+    document.addEventListener('DOMContentLoaded', async function () {
+        const token = localStorage.getItem('token');
+
+        // Fetch and display students
+        await fetchStudents();
+
+        // Show register modal
+        document.getElementById('registerButton').addEventListener('click', function () {
+            document.getElementById('registerModal').classList.remove('hidden');
+        });
+
+        // Hide modals
+        document.getElementById('closeModalButton').addEventListener('click', function () {
+            document.getElementById('registerModal').classList.add('hidden');
+        });
+        document.getElementById('closeDetailsModalButton').addEventListener('click', function () {
+            document.getElementById('studentDetailsModal').classList.add('hidden');
+        });
+        document.getElementById('closeUpdateModalButton').addEventListener('click', function () {
+            document.getElementById('updateStudentModal').classList.add('hidden');
+        });
+        document.getElementById('closeViewProfileImageModalButton').addEventListener('click', function () {
+            document.getElementById('viewProfileImageModal').classList.add('hidden');
+        });
+
+        // Register student form submission
+        document.getElementById('registerStudentForm').addEventListener('submit', async function (event) {
+            event.preventDefault();
+            const formData = new FormData();
+
+            const studentRequest = {
+                name: document.getElementById('name').value,
+                email: document.getElementById('email').value,
+                dob: document.getElementById('dob').value,
+                gender: document.getElementById('gender').value,
+                address: document.getElementById('address').value,
+                phone: document.getElementById('phone').value,
+                guardian: document.getElementById('guardian').value
+            };
+            formData.append('studentRequest', new Blob([JSON.stringify(studentRequest)], { type: 'application/json' }));
+
+            const fileInput = document.getElementById('file');
+            if (fileInput.files.length > 0) {
+                formData.append('file', fileInput.files[0]);
+            }
+
+            try {
+                const response = await fetch('/api/admin/registerStudent', {
+                    method: 'POST',
+                    headers: {
+                        'Authorization': `Bearer ${token}`
+                    },
+                    body: formData
+                });
+
+                if (!response.ok) {
+                    throw new Error('Failed to register student');
+                }
+
+                Swal.fire('Success', 'Student registered successfully', 'success');
+                document.getElementById('registerModal').classList.add('hidden');
+                await fetchStudents();
+            } catch (error) {
+                console.error('Error registering student:', error);
+                Swal.fire('Error', 'Failed to register student', 'error');
+            }
+        });
+
+        // Search students
+        document.getElementById('searchInput').addEventListener('input', async function () {
+            const keyword = this.value;
+
+            try {
+                const response = await fetch(`/api/admin/students/search?keyword=${keyword}`, {
+                    method: 'GET',
+                    headers: {
+                        'Authorization': `Bearer ${token}`
+                    }
+                });
+
+                if (!response.ok) {
+                    throw new Error('Failed to search students');
+                }
+
+                const students = await response.json();
+                const studentsTableBody = document.getElementById('studentsTableBody');
+                studentsTableBody.innerHTML = '';
+
+                students.forEach(student => {
+                    const row = document.createElement('tr');
+                    row.innerHTML = `
+                    <td class="py-2 px-4">${student.name}</td>
+                    <td class="py-2 px-4">${student.email}</td>
+                    <td class="py-2 px-4">${student.dob}</td>
+                    <td class="py-2 px-4">${student.gender}</td>
+                    <td class="py-2 px-4">${student.address}</td>
+                    <td class="py-2 px-4">${student.phone}</td>
+                    <td class="py-2 px-4">${student.guardian}</td>
+                `;
+                    row.addEventListener('click', () => showStudentDetails(student));
+                    studentsTableBody.appendChild(row);
+                });
+            } catch (error) {
+                console.error('Error searching students:', error);
+                Swal.fire('Error', 'Failed to search students', 'error');
+            }
+        });
+
+        // Update student form submission
+        document.getElementById('updateStudentForm').addEventListener('submit', async function (event) {
+            event.preventDefault();
+            const studentId = this.dataset.studentId;
+            const studentRequest = {
+                name: document.getElementById('updateName').value,
+                email: document.getElementById('updateEmail').value,
+                dob: document.getElementById('updateDob').value,
+                gender: document.getElementById('updateGender').value,
+                address: document.getElementById('updateAddress').value,
+                phone: document.getElementById('updatePhone').value,
+                guardian: document.getElementById('updateGuardian').value
+            };
+
+            try {
+                const response = await fetch(`/api/admin/updateStudent/${studentId}`, {
+                    method: 'PUT',
+                    headers: {
+                        'Content-Type': 'application/json',
+                        'Authorization': `Bearer ${token}`
+                    },
+                    body: JSON.stringify(studentRequest)
+                });
+
+                if (!response.ok) {
+                    throw new Error('Failed to update student');
+                }
+
+                Swal.fire('Success', 'Student updated successfully', 'success');
+                document.getElementById('updateStudentModal').classList.add('hidden');
+                await fetchStudents();
+            } catch (error) {
+                console.error('Error updating student:', error);
+                Swal.fire('Error', 'Failed to update student', 'error');
+            }
+        });
+
+        // Update profile image form submission
+        document.getElementById('updateProfileImageForm').addEventListener('submit', async function (event) {
+            event.preventDefault();
+            const formData = new FormData(this);
+            const studentId = this.dataset.studentId;
+
+            try {
+                const response = await fetch(`/api/admin/updateStudentProfileImage/${studentId}`, {
+                    method: 'PUT',
+                    headers: {
+                        'Authorization': `Bearer ${token}`
+                    },
+                    body: formData
+                });
+
+                if (!response.ok) {
+                    throw new Error('Failed to update profile image');
+                }
+
+                Swal.fire('Success', 'Profile image updated successfully', 'success');
+                document.getElementById('viewProfileImageModal').classList.add('hidden');
+                await fetchStudents();
+            } catch (error) {
+                console.error('Error updating profile image:', error);
+                Swal.fire('Error', 'Failed to update profile image', 'error');
+            }
+        });
+    });
+
+    async function deactivateStudent(studentId) {
+        try {
+            const token = localStorage.getItem('token');
+            if (!token) {
+                throw new Error('Authorization token is missing');
+            }
+
+            // Disable the button and show a loading state
+            const deactivateBtn = document.getElementById('deactivateStudentButton');
+            if (deactivateBtn) {
+                deactivateBtn.disabled = true;
+                deactivateBtn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Processing...';
+            }
+
+            const response = await fetch(`/api/admin/deactivateStudent/${studentId}`, {
+                method: 'PUT',
+                headers: {
+                    'Authorization': `Bearer ${token}`,
+                    'Content-Type': 'application/json'
+                }
+            });
+
+            // Check if the response status is OK
+            if (response.ok) {
+                Swal.fire({
+                    icon: 'success',
+                    title: 'Success',
+                    text: 'Student deactivated successfully',
+                    timer: 2000,
+                    showConfirmButton: false
+                });
+
+                // Refresh the student list and close modal
+                await fetchStudents();
+                document.getElementById('studentDetailsModal').classList.add('hidden');
+            } else {
+                // Handle non-OK responses
+                const errorData = await response.json().catch(() => ({}));
+                throw new Error(errorData.message || `HTTP error! status: ${response.status}`);
+            }
+        } catch (error) {
+            console.error('Error deactivating student:', error);
+            Swal.fire({
+                icon: 'error',
+                title: 'Error',
+                text: error.message || 'Failed to deactivate student',
+            });
+        } finally {
+            // Re-enable the button and reset its content
+            const deactivateBtn = document.getElementById('deactivateStudentButton');
+            if (deactivateBtn) {
+                deactivateBtn.disabled = false;
+                deactivateBtn.innerHTML = `
+                <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 mr-2" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M18 12H6" />
+                </svg>
+                Deactivate
+            `;
+            }
+        }
+    }
+
+    async function filterByGender() {
+        const gender = document.getElementById('genderFilter').value;
+        const studentsTableBody = document.getElementById('studentsTableBody');
+
+        try {
+            const response = await fetch(`/api/admin/students/findByGender?gender=${encodeURIComponent(gender)}`);
+            if (!response.ok) throw new Error('Failed to fetch students');
+            const students = await response.json();
+
+            // Clear the table body
+            studentsTableBody.innerHTML = '';
+
+            if (students.length === 0) {
+                const row = document.createElement('tr');
+                row.innerHTML = `<td colspan="7" class="text-center py-4">No students found</td>`;
+                studentsTableBody.appendChild(row);
+                return;
+            }
+
+            // Populate the table with filtered students
+            students.forEach(student => {
+                const row = document.createElement('tr');
+                row.classList.add('hover:bg-gray-50', 'transition-colors');
+                row.innerHTML = `
+                <td class="px-6 py-4 whitespace-nowrap">
+                    <div class="flex items-center">
+                        <div class="h-10 w-10 flex-shrink-0">
+                            <img class="h-10 w-10 rounded-full object-cover border-2 border-gray-200" src="${student.profilePicture || 'static/images/default-student.png'}" alt="Student">
+                        </div>
+                        <div class="ml-4">
+                            <div class="text-sm font-medium text-gray-900">${student.name}</div>
+                            <div class="text-sm text-gray-500">ID: ${student.id}</div>
+                        </div>
+                    </div>
+                </td>
+                <td class="px-6 py-4 whitespace-nowrap">
+                    <div class="text-sm text-gray-900">${student.email}</div>
+                </td>
+                <td class="px-6 py-4 whitespace-nowrap">
+                    <div class="text-sm text-gray-900">${student.dob}</div>
+                </td>
+                <td class="px-6 py-4 whitespace-nowrap">
+                    <span class="px-3 py-1 inline-flex text-xs leading-5 font-semibold rounded-full bg-green-100 text-green-800">
+                        ${student.gender}
+                    </span>
+                </td>
+                <td class="px-6 py-4">
+                    <div class="text-sm text-gray-900 max-w-xs truncate">${student.address}</div>
+                </td>
+                <td class="px-6 py-4 whitespace-nowrap">
+                    <div class="text-sm text-gray-900">${student.phone}</div>
+                </td>
+                <td class="px-6 py-4 whitespace-nowrap">
+                    <div class="text-sm text-gray-900">${student.guardian}</div>
+                </td>
+            `;
+                row.addEventListener('click', () => showStudentDetails(student));
+                studentsTableBody.appendChild(row);
+            });
+        } catch (error) {
+            console.error('Error fetching students by gender:', error);
+            Swal.fire('Error', 'Failed to load students', 'error');
+        }
+    }
+
+    // Show confirmation modal
+    function showConfirmDeactivateModal(studentId) {
+        studentToDeactivate = studentId;
+        document.getElementById('confirmDeactivateModal').classList.remove('hidden');
+        document.getElementById('studentDetailsModal').classList.add('hidden');
+    }
+
+    // Cancel deactivation
+    document.getElementById('cancelDeactivateButton').addEventListener('click', function () {
+        studentToDeactivate = null;
+        document.getElementById('confirmDeactivateModal').classList.add('hidden');
+        document.getElementById('studentDetailsModal').classList.add('hidden');
+    });
+
+    // Confirm deactivation
+    document.getElementById('confirmDeactivateButton').addEventListener('click', async function () {
+        if (studentToDeactivate) {
+            await deactivateStudent(studentToDeactivate);
+            studentToDeactivate = null;
+            document.getElementById('confirmDeactivateModal').classList.add('hidden');
+            document.getElementById('studentDetailsModal').classList.add('hidden');
+        }
+    });
+
+    // Show student details
+    function showStudentDetails(student) {
+        currentStudent = student;
+
+        document.getElementById('studentName').textContent = student.name || 'N/A';
+        document.getElementById('studentEmail').textContent = student.email || 'N/A';
+        document.getElementById('studentDob').textContent = student.dob || 'N/A';
+        document.getElementById('studentGender').textContent = student.gender || 'N/A';
+        document.getElementById('studentAddress').textContent = student.address || 'N/A';
+        document.getElementById('studentPhone').textContent = student.phone || 'N/A';
+        document.getElementById('studentGuardian').textContent = student.guardian || 'N/A';
+
+        const profilePicture = student.profilePicture || 'static/images/default-student.png';
+        document.getElementById('studentImage').src = profilePicture;
+
+        document.getElementById('studentDetailsModal').classList.remove('hidden');
+    }
+
+    // Show update student modal
+    function showUpdateStudentModal(student) {
+        document.getElementById('updateName').value = student.name;
+        document.getElementById('updateEmail').value = student.email;
+        document.getElementById('updateDob').value = student.dob;
+        document.getElementById('updateGender').value = student.gender;
+        document.getElementById('updateAddress').value = student.address;
+        document.getElementById('updatePhone').value = student.phone;
+        document.getElementById('updateGuardian').value = student.guardian;
+        document.getElementById('updateStudentForm').dataset.studentId = student.id;
+
+        document.getElementById('updateStudentModal').classList.remove('hidden');
+
+        document.getElementById('studentDetailsModal').classList.add('hidden');
+    }
+
+    let genderPieChart = null;
+    let statusBarChart = null;
+
+    // Update the filter button click handler
+    document.getElementById('filterButton').addEventListener('click', () => {
+        const container = document.getElementById('filterFormContainer');
+        container.classList.toggle('hidden');
+
+        if (!container.classList.contains('hidden')) {
+            loadCharts();
+        }
+    });
+
+    async function loadCharts() {
+        try {
+            // Load gender distribution data
+            const genderResponse = await fetch('/api/admin/students/genderDistribution', {
+                headers: { 'Authorization': `Bearer ${token}` }
+            });
+            const genderData = await genderResponse.json();
+
+            // Load status distribution data
+            const statusResponse = await fetch('/api/admin/students/statusDistribution', {
+                headers: { 'Authorization': `Bearer ${token}` }
+            });
+            const statusData = await statusResponse.json();
+
+            // Destroy existing charts if they exist
+            if (genderPieChart) genderPieChart.destroy();
+            if (statusBarChart) statusBarChart.destroy();
+
+            // Render Pie Chart
+            const pieCtx = document.getElementById('genderPieChart').getContext('2d');
+            genderPieChart = new Chart(pieCtx, {
+                type: 'pie',
+                data: {
+                    labels: Object.keys(genderData),
+                    datasets: [{
+                        data: Object.values(genderData),
+                        backgroundColor: [
+                            'rgba(54, 162, 235, 0.7)',  // Blue
+                            'rgba(255, 99, 132, 0.7)',  // Pink
+                            'rgba(153, 102, 255, 0.7)'  // Purple
+                        ],
+                        borderColor: '#fff',
+                        borderWidth: 1
+                    }]
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    plugins: {
+                        legend: {
+                            position: 'right',
+                        },
+                        tooltip: {
+                            callbacks: {
+                                label: function(context) {
+                                    const total = context.dataset.data.reduce((a, b) => a + b, 0);
+                                    const value = context.raw;
+                                    const percentage = Math.round((value / total) * 100);
+                                    return `${context.label}: ${value} (${percentage}%)`;
+                                }
+                            }
+                        }
+                    }
+                }
+            });
+
+            const barCtx = document.getElementById('statusBarChart').getContext('2d');
+            try {
+                const registrationYearResponse = await fetch('/api/admin/students/registrationYear', {
+                    headers: { 'Authorization': `Bearer ${token}` }
+                });
+                const registrationYearData = await registrationYearResponse.json();
+
+                const years = Object.keys(registrationYearData);
+                const totals = Object.values(registrationYearData);
+
+                statusBarChart = new Chart(barCtx, {
+                    type: 'bar',
+                    data: {
+                        labels: years,
+                        datasets: [{
+                            label: 'Total Students',
+                            data: totals,
+                            backgroundColor: 'rgba(54, 162, 235, 0.7)', // Blue
+                            borderColor: 'rgba(54, 162, 235, 1)',
+                            borderWidth: 1
+                        }]
+                    },
+                    options: {
+                        responsive: true,
+                        maintainAspectRatio: false,
+                        plugins: {
+                            legend: {
+                                display: true,
+                                position: 'top'
+                            }
+                        },
+                        scales: {
+                            y: {
+                                beginAtZero: true,
+                                ticks: {
+                                    precision: 0
+                                }
+                            }
+                        }
+                    }
+                });
+            } catch (error) {
+                console.error('Error loading registration year data:', error);
+                Swal.fire('Error', 'Failed to load registration year data', 'error');
+            }
+
+        } catch (error) {
+            console.error('Error loading charts:', error);
+            Swal.fire('Error', 'Failed to load chart data', 'error');
+        }
+    }
+
+    document.addEventListener('DOMContentLoaded', () => {
+        const enrollButton = document.getElementById('enrollStudentButton');
+        const enrollModal = document.getElementById('enrollModal');
+        const closeEnrollModalButton = document.getElementById('closeEnrollModalButton');
+        const courseSearchInput = document.getElementById('courseSearch');
+        const courseSearchResults = document.getElementById('courseSearchResults');
+        const selectedCoursesContainer = document.getElementById('selectedCoursesContainer');
+        const selectedCourseIds = [];
+
+        // Show the enroll modal
+        enrollButton.addEventListener('click', () => {
+            enrollModal.classList.remove('hidden');
+            courseSearchInput.value = '';
+            courseSearchResults.innerHTML = '';
+            selectedCoursesContainer.innerHTML = '';
+            selectedCourseIds.length = 0;
+        });
+
+        // Close the enroll modal
+        closeEnrollModalButton.addEventListener('click', () => {
+            enrollModal.classList.add('hidden');
+        });
+
+        // Fetch and display top 10 courses when the course search input is focused
+        courseSearchInput.addEventListener('focus', async () => {
+            try {
+                const response = await fetch('/api/courses/top10');
+                if (!response.ok) throw new Error('Failed to fetch top courses');
+                const courses = await response.json();
+
+                courseSearchResults.innerHTML = '';
+                courses.forEach(course => {
+                    const li = document.createElement('li');
+                    li.textContent = course.name;
+                    li.className = 'px-4 py-2 cursor-pointer hover:bg-gray-100';
+                    li.addEventListener('click', () => {
+                        if (!selectedCourseIds.includes(course.id)) {
+                            selectedCourseIds.push(course.id);
+                            const courseTag = document.createElement('span');
+                            courseTag.textContent = course.name;
+                            courseTag.className = 'inline-block bg-gray-200 text-gray-800 text-sm px-2 py-1 rounded mr-2 mb-2';
+                            courseTag.addEventListener('click', () => {
+                                selectedCourseIds.splice(selectedCourseIds.indexOf(course.id), 1);
+                                courseTag.remove();
+                            });
+                            selectedCoursesContainer.appendChild(courseTag);
+                        }
+                        courseSearchInput.value = '';
+                        courseSearchResults.classList.add('hidden');
+                    });
+                    courseSearchResults.appendChild(li);
+                });
+
+                courseSearchResults.classList.remove('hidden');
+            } catch (error) {
+                console.error('Error fetching top courses:', error);
+            }
+        });
+
+        // Handle form submission
+        document.getElementById('enrollForm').addEventListener('submit', async (event) => {
+            event.preventDefault();
+
+            const studentId = currentStudent.id; // Use the selected student's ID
+            const semester = document.getElementById('semester').value;
+            const academicYear = document.getElementById('academicYear').value;
+
+            if (selectedCourseIds.length === 0) {
+                alert('Please select at least one course.');
+                return;
+            }
+
+            try {
+                const response = await fetch('/api/enrollments/batch', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                        'Authorization': `Bearer ${localStorage.getItem('token')}`
+                    },
+                    body: JSON.stringify({
+                        studentId,
+                        courseIds: selectedCourseIds,
+                        semester,
+                        academicYear
+                    })
+                });
+
+                if (!response.ok) {
+                    throw new Error('Failed to enroll student');
+                }
+
+                Swal.fire('Success', 'Student enrolled successfully', 'success');
+                enrollModal.classList.add('hidden');
+            } catch (error) {
+                console.error('Error enrolling student:', error);
+                Swal.fire('Error', 'Failed to enroll student', 'error');
+            }
+        });
+    });
+
+
+
+    // Show view profile image modal
+    function showViewProfileImageModal(student) {
+        document.getElementById('profileImageLarge').src = student.profilePicture || 'static/images/default-student.png';
+        document.getElementById('updateProfileImageForm').dataset.studentId = student.id;
+
+        document.getElementById('viewProfileImageModal').classList.remove('hidden');
+        document.getElementById('studentDetailsModal').classList.add('hidden');
+    }
+
+</script>
+</body>
+</html>

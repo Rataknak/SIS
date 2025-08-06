@@ -1,0 +1,1260 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="utf-8"/>
+  <meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+  <title>SIS Project - Courses</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+  <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.3/css/all.min.css" rel="stylesheet"/>
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap-icons/font/bootstrap-icons.css" rel="stylesheet"/>
+  <link href="https://fonts.googleapis.com/css2?family=Roboto:wght@400;500;700&display=swap" rel="stylesheet"/>
+  <style>
+    body {
+      font-family: 'Roboto', sans-serif;
+    }
+    .sidebar {
+      transition: all 0.3s;
+    }
+    .profile-dropdown {
+      display: none;
+    }
+    .profile-dropdown.show {
+      display: block;
+    }
+    td.total-students {
+      text-align: center;
+      width: 50px; /* Adjust width as needed */
+      white-space: nowrap;
+      overflow: hidden;
+      text-overflow: ellipsis;
+    }
+    .custom-select {
+      appearance: none; /* Remove default browser styles */
+      background-image: url('data:image/svg+xml;charset=UTF-8,<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20" fill="gray"><path d="M5.293 7.293a1 1 0 011.414 0L10 10.586l3.293-3.293a1 1 0 111.414 1.414l-4 4a1 1 0 01-1.414 0l-4-4a1 1 0 010-1.414z"/></svg>');
+      background-repeat: no-repeat;
+      background-position: right 1rem center;
+      background-size: 1rem;
+    }
+
+    .custom-select:hover {
+      border-color: #6366f1; /* Indigo hover color */
+    }
+
+    .custom-select:focus {
+      border-color: #4f46e5; /* Indigo focus color */
+      box-shadow: 0 0 0 3px rgba(99, 102, 241, 0.5); /* Focus ring */
+    }
+  </style>
+</head>
+<body class="bg-gray-100">
+<div class="flex h-screen">
+  <aside class="fixed inset-y-0 left-0 w-72 bg-white shadow-xl rounded-tr-3xl rounded-br-3xl flex flex-col justify-between border border-gray-300">
+    <div>
+      <div class="flex items-center gap-4 px-8 py-8 border-b border-gray-300">
+        <img alt="School Logo, a classic maroon shield with gold trim and an open book in the center" class="w-20 h-20 rounded-lg shadow-md" height="80" src="images/logo.png" width="80"/>
+        <h1 class="text-3xl font-bold text-gray-800 select-none tracking-wide">
+          RUPP
+        </h1>
+      </div>
+      <nav class="mt-10 flex flex-col space-y-3 px-6">
+        <a class="flex items-center gap-4 px-5 py-3 rounded-lg text-gray-700 hover:bg-gray-200 hover:text-gray-900 transition" href="dashboard.html">
+          <i class="fas fa-home text-lg"></i>
+          <span class="font-semibold text-lg">Dashboard</span>
+        </a>
+        <a class="flex items-center gap-4 px-5 py-3 rounded-lg text-gray-700 hover:bg-gray-200 hover:text-gray-900 transition" href="student.html">
+          <i class="fas fa-users text-lg"></i>
+          <span class="font-semibold text-lg">Students</span>
+        </a>
+        <a aria-current="page" class="flex items-center gap-4 px-5 py-3 rounded-lg bg-gray-800 text-white shadow-lg font-semibold text-lg" href="course.html">
+          <i class="fas fa-book text-lg"></i>
+          <span class="font-semibold text-lg">Courses</span>
+        </a>
+        <a class="flex items-center gap-4 px-5 py-3 rounded-lg text-gray-700 hover:bg-gray-200 hover:text-gray-900 transition" href="teacher.html">
+          <i class="fas fa-chalkboard-teacher text-lg"></i>
+          <span class="font-semibold text-lg">Teachers</span>
+        </a>
+        <a class="flex items-center gap-4 px-5 py-3 rounded-lg text-gray-700 hover:bg-gray-200 hover:text-gray-900 transition" href="enrollment.html">
+          <i class="fas fa-clipboard-list text-lg"></i>
+          <span>Enrollments</span>
+        </a>
+      </nav>
+    </div>
+    <div class="px-6 py-6 border-t border-gray-300 text-center text-gray-500 text-sm select-none">
+      © 2025 Royal University of Phnom Penh. All rights reserved.
+    </div>
+  </aside>
+
+  <div class="flex-1 flex flex-col overflow-hidden ml-72">
+    <!-- Top Header -->
+    <header class="bg-white shadow-sm z-10">
+      <div class="flex items-center justify-between px-6 py-5 border-b border-gray-200">
+        <h1 class="text-2xl font-bold text-gray-800">Manage Courses</h1>
+        <div class="flex items-center space-x-3">
+          <button id="filterButton" class="px-5 py-2.5 bg-gray-200 text-gray-800 rounded-lg hover:bg-gray-300 transition-all duration-300 group relative overflow-hidden border border-gray-300 hover:border-gray-400">
+  <span class="relative flex items-center justify-center gap-2">
+    <i class="fas fa-book-open transition-transform group-hover:rotate-[-10deg]"></i>
+    <span class="font-medium">Manage Subjects</span>
+    <span class="absolute -right-3 opacity-0 group-hover:opacity-100 group-hover:right-1 transition-all duration-300">
+    </span>
+  </span>
+            <span class="absolute inset-0 bg-white opacity-0 group-hover:opacity-10 transition-opacity duration-200"></span>
+          </button>
+          <button id="createCourseButton" class="px-5 py-2 bg-gray-800 text-white rounded-lg hover:bg-gray-900 transition">
+            <i class="fas fa-plus mr-2"></i>Add new Course
+          </button>
+        </div>
+      </div>
+      <div id="filterFormContainer" class="hidden px-6 py-6 bg-white rounded-lg shadow-md border border-gray-100">
+        <div class="mb-6 flex items-center justify-between">
+          <div>
+            <h2 class="text-2xl font-bold text-gray-800 flex items-center">
+              <i class="fas fa-star text-yellow-500 mr-3"></i>
+              Top Subjects
+            </h2>
+            <p class="text-sm text-gray-500 mt-1">Most frequently used subjects across courses</p>
+          </div>
+          <button class="add-new-subject-button px-5 py-2 bg-gray-500 text-white rounded-lg hover:bg-gray-800 transition">
+            <i class="bi bi-journals mr-1"></i>Add New Subject
+          </button>
+        </div>
+
+
+        <div class="overflow-x-auto rounded-lg border border-gray-200 shadow-sm">
+          <table id="top10SubjectsTable" class="min-w-full divide-y divide-gray-200">
+            <thead class="bg-gray-50">
+            <tr>
+              <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                <div class="flex items-center">
+                  Subject
+                  <button class="ml-1 text-gray-400 hover:text-gray-500">
+                    <i class="fas fa-sort"></i>
+                  </button>
+                </div>
+              </th>
+              <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                <div class="flex items-center">
+                  Code
+                  <button class="ml-1 text-gray-400 hover:text-gray-500">
+                    <i class="fas fa-sort"></i>
+                  </button>
+                </div>
+              </th>
+              <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                Description
+              </th>
+              <th class="px-4 py-2 border-b text-left text-sm font-medium text-gray-700">Actions</th>
+
+
+            </tr>
+            </thead>
+            <tbody class="bg-white divide-y divide-gray-200">
+            <!-- Example row (replace with dynamic content) -->
+            <tr class="hover:bg-gray-50 transition-colors">
+              <td class="px-6 py-4 whitespace-nowrap text-sm font-medium text-blue-600">
+                CS101
+              </td>
+              <td class="px-6 py-4 whitespace-nowrap text-sm font-semibold text-gray-900">
+                Introduction to Programming
+              </td>
+              <td class="px-6 py-4 text-sm text-gray-500 max-w-xs truncate">
+                Fundamental concepts of programming using Python
+              </td>
+              <td class="px-6 py-4 whitespace-nowrap">
+            <span class="px-2 py-1 text-xs font-semibold rounded-full bg-green-100 text-green-800">
+              Active
+            </span>
+              </td>
+            </tr>
+            <!-- More rows will be dynamically added here -->
+            </tbody>
+          </table>
+        </div>
+      </div>
+    </header>
+
+    <!-- Active Courses Section -->
+    <main class="flex-1 overflow-x-hidden overflow-y-auto bg-gray-100 p-10">
+      <div class="mt-6 bg-white p-6 rounded-lg shadow">
+        <h2 class="text-lg font-semibold text-gray-800">Course List</h2>
+          <div class="bg-white rounded-lg shadow overflow-hidden">
+            <table id="activeCoursesTable" class="table-auto w-full border-collapse border border-gray-300">
+              <thead>
+              <tr class="bg-gray-700 text-white">
+                <th class="border border-gray-300 px-4 py-2 text-left">Name</th>
+                <th class="border border-gray-300 px-4 py-2 text-left">Description</th>
+                <th class="border border-gray-300 px-2 py-2 text-center">Student</th> <!-- Shortened header -->
+              </tr>
+              </thead>
+              <tbody>
+              <!-- Rows will be dynamically added here -->
+              </tbody>
+            </table>
+          </div>
+        </div>
+    </main>
+  </div>
+
+</div>
+
+<!-- Create Course Modal -->
+<div id="createCourseModal" class="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center hidden z-50">
+  <div class="bg-white rounded-xl shadow-2xl p-8 w-full max-w-md mx-4">
+    <!-- Modal Header -->
+    <div class="text-center mb-6">
+      <div class="mx-auto flex items-center justify-center h-12 w-12 rounded-full bg-indigo-100 mb-3">
+        <i class="fas fa-book-open text-indigo-600 text-xl"></i>
+      </div>
+      <h2 class="text-2xl font-bold text-gray-800">Create New Course</h2>
+      <p class="text-sm text-gray-500 mt-1">Fill in the course details below</p>
+    </div>
+
+    <!-- Modal Body -->
+    <form id="createCourseForm" class="space-y-4">
+      <div>
+        <label for="courseName" class="block text-sm font-medium text-gray-700 mb-1">Course Name <span class="text-red-500">*</span></label>
+        <div class="relative">
+          <input
+                  type="text"
+                  id="courseName"
+                  class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 transition placeholder-gray-400"
+                  placeholder="Introduction to Computer Science"
+                  required
+          >
+          <div class="absolute inset-y-0 right-0 flex items-center pr-3 pointer-events-none">
+            <i class="fas fa-book text-gray-400"></i>
+          </div>
+        </div>
+      </div>
+
+      <div>
+        <label for="courseDescription" class="block text-sm font-medium text-gray-700 mb-1">Description <span class="text-red-500">*</span></label>
+        <textarea
+                id="courseDescription"
+                rows="3"
+                class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 transition placeholder-gray-400"
+                placeholder="Course overview and learning objectives..."
+                required
+        ></textarea>
+      </div>
+
+      <div>
+        <label for="courseCredits" class="block text-sm font-medium text-gray-700 mb-1">Credits <span class="text-red-500">*</span></label>
+        <div class="relative">
+          <input
+                  type="number"
+                  id="courseCredits"
+                  class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 transition appearance-none"
+                  value="1"
+                  min="1"
+                  max="10"
+                  required
+          >
+          <div class="absolute inset-y-0 right-0 flex items-center pr-3 pointer-events-none">
+            <span class="text-gray-500">credits</span>
+          </div>
+        </div>
+      </div>
+
+      <!-- Modal Footer -->
+      <div class="flex justify-end space-x-3 pt-4">
+        <button
+                type="button"
+                id="cancelCreateCourse"
+                class="px-5 py-2.5 border border-gray-300 rounded-lg text-gray-700 hover:bg-gray-50 transition flex items-center"
+        >
+          <i class="fas fa-times mr-2"></i> Cancel
+        </button>
+        <button
+                type="submit"
+                class="px-5 py-2.5 bg-indigo-600 text-white rounded-lg hover:bg-indigo-700 transition flex items-center shadow-md hover:shadow-lg"
+        >
+          <i class="fas fa-plus-circle mr-2"></i> Create Course
+        </button>
+      </div>
+    </form>
+  </div>
+</div>
+<<!-- Course Details Modal -->
+<div id="courseDetailsModal" class="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center hidden">
+  <div class="bg-white rounded-lg shadow-lg w-full max-w-4xl">
+    <!-- Modal Header -->
+    <div class="flex justify-between items-center bg-gray-700 text-white px-6 py-4 rounded-t-lg">
+      <h2 class="text-xl font-semibold">Course Details</h2>
+      <button id="cancelCourseDetails" class="text-white hover:text-gray-300 text-xl">
+        <i class="fas fa-times"></i>
+      </button>
+    </div>
+
+    <!-- Two Column Content -->
+    <div class="flex flex-col md:flex-row">
+      <!-- Left Column - Course Editing -->
+      <div class="w-full md:w-1/2 p-6 border-r border-gray-200">
+        <h3 class="text-lg font-semibold text-gray-800 mb-4 flex items-center">
+          <i class="fas fa-edit mr-2 text-blue-500"></i> Edit Course
+        </h3>
+
+        <div class="mb-4">
+          <label for="courseDetailName" class="block text-sm font-medium text-gray-700 mb-1">Course Name</label>
+          <input id="courseDetailName"
+                 class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition" />
+        </div>
+
+        <div class="mb-4">
+          <label for="courseDetailDescription" class="block text-sm font-medium text-gray-700 mb-1">Description</label>
+          <textarea id="courseDetailDescription" rows="3"
+                    class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition"></textarea>
+        </div>
+
+        <div class="mb-6">
+          <label id="courseDetailCredits"></label>
+            </div>
+
+        <div class="mb-4">
+          <details id="courseDetailTeachers" class="border border-gray-200 rounded-lg p-3">
+            <summary class="flex items-center justify-between cursor-pointer text-sm font-medium text-gray-700">
+              <span>View Teachers</span>
+              <i class="fas fa-chevron-down text-xs transform transition-transform duration-200"></i>
+            </summary>
+            <ul class="list-disc pl-5 mt-2 space-y-1 text-sm text-gray-600"></ul>
+          </details>
+        </div>
+      </div>
+
+      <!-- Right Column - Subject Assignment -->
+      <div class="w-full md:w-1/2 p-6 bg-gray-50">
+        <h3 class="text-lg font-semibold text-gray-800 mb-4 flex items-center">
+          <i class="fas fa-tasks mr-2 text-green-500"></i> Assign Subjects
+        </h3>
+
+        <div class="mb-4">
+          <div class="flex justify-between items-center mb-2">
+            <label for="assignSubjectSelect" class="block text-sm font-medium text-gray-700">Select Subjects</label>
+            <button id="selectAllButton" type="button"
+                    class="text-xs px-3 py-1 bg-blue-50 text-blue-700 rounded-md hover:bg-blue-100 transition border border-blue-200">
+              <i class="fas fa-check-circle mr-1"></i> Select All
+            </button>
+          </div>
+
+          <div class="relative">
+            <select id="assignSubjectSelect"
+                    class="custom-select w-full px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500 bg-white transition">
+              <option value="" disabled selected>Select a subject</option>
+            </select>
+          </div>
+        </div>
+
+        <div class="mb-4">
+          <p class="text-xs text-gray-500 mb-2">Selected Subjects (<span id="selectedCount">0</span>):</p>
+          <div id="selectedSubjectsContainer" class="min-h-20 p-3 border border-gray-200 rounded-lg bg-white">
+            <p class="text-sm text-gray-500 text-center py-4" id="noSubjectsMessage">No subjects selected</p>
+          </div>
+        </div>
+
+        <div class="mb-4">
+          <details id="courseDetailAssignedSubjects" class="border border-gray-200 rounded-lg p-3">
+            <summary class="flex items-center justify-between cursor-pointer text-sm font-medium text-gray-700">
+              <span>View Assigned Subjects</span>
+              <i class="fas fa-chevron-down text-xs transform transition-transform duration-200"></i>
+            </summary>
+            <ul id="assignedSubjectsList" class="list-disc pl-5 mt-2 space-y-1 text-sm text-gray-600"></ul>
+          </details>
+        </div>
+
+        <div class="flex justify-end">
+          <button id="assignCourseButton"
+                  class="px-4 py-2 bg-green-600 text-white rounded-lg hover:bg-green-700 transition shadow-sm disabled:opacity-50"
+                  disabled>
+            <i class="fas fa-check-circle mr-2"></i> Assign Subjects
+          </button>
+        </div>
+
+      </div>
+    </div>
+
+    <!-- Modal Footer -->
+    <!-- Modal Footer -->
+    <div class="flex flex-col md:flex-row justify-between bg-gray-100 px-6 py-3 rounded-b-lg border-t border-gray-200">
+      <!-- Edit Side Buttons -->
+      <div class="flex space-x-3 mb-3 md:mb-0">
+        <button id="deactivateCourse"
+                class="px-4 py-2 bg-red-600 text-white rounded-lg hover:bg-red-700 transition flex items-center">
+          <i class="fas fa-trash-alt mr-2"></i> Delete Course
+        </button>
+        <button id="editCourse"
+                class="px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition flex items-center">
+          <i class="fas fa-save mr-2"></i> Save Changes
+        </button>
+      </div>
+
+      <!-- Assign Side Button -->
+      <button id="assignTeacherButton"
+              class="px-5 py-2.5 bg-purple-600 text-white rounded-lg hover:bg-purple-700 transition-all
+               flex items-center shadow hover:shadow-md focus:outline-none focus:ring-2
+               focus:ring-purple-500 active:bg-purple-800 group">
+        <i class="fas fa-user-graduate mr-2 group-hover:rotate-6 transition-transform"></i>
+        <span class="font-medium tracking-wide">Assign Teacher</span>
+      </button>
+    </div>
+    </div>
+  </div>
+</div>
+
+<!-- Create Subject Modal -->
+<div id="createSubjectModal" class="fixed inset-0 bg-gray-800 bg-opacity-50 flex items-center justify-center z-50 hidden">
+  <div class="bg-white rounded-lg shadow-lg w-1/3 z-60">
+    <div class="px-6 py-4 border-b">
+      <h3 class="text-lg font-semibold">Create New Subject</h3>
+    </div>
+    <div class="p-6">
+      <form id="createSubjectForm">
+        <div class="mb-4">
+          <label for="subjectName" class="block text-sm font-medium text-gray-700">Name</label>
+          <input type="text" id="subjectName" class="mt-1 block w-full border-gray-300 rounded-md shadow-sm" required />
+        </div>
+        <div class="mb-4">
+          <label for="subjectCode" class="block text-sm font-medium text-gray-700">Code</label>
+          <input type="text" id="subjectCode" class="mt-1 block w-full border-gray-300 rounded-md shadow-sm" required />
+        </div>
+        <div class="mb-4">
+          <label for="subjectDescription" class="block text-sm font-medium text-gray-700">Description</label>
+          <textarea id="subjectDescription" class="mt-1 block w-full border-gray-300 rounded-md shadow-sm"></textarea>
+        </div>
+      </form>
+    </div>
+    <div class="px-6 py-4 border-t flex justify-end">
+      <button id="cancelCreateSubject" class="px-4 py-2 bg-gray-500 text-white rounded-lg hover:bg-gray-600 transition">Cancel</button>
+      <button id="createSubjectButton" class="ml-2 px-4 py-2 bg-blue-500 text-white rounded-lg hover:bg-blue-600 transition">Create</button>
+    </div>
+  </div>
+</div>
+
+<!-- Edit Subject Modal -->
+<div id="editSubjectModal" class="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 hidden">
+  <div class="bg-white rounded-xl shadow-2xl w-full max-w-md mx-4 overflow-hidden">
+    <!-- Modal Header -->
+    <div class="bg-gray-800 text-white px-6 py-4 rounded-t-xl flex justify-between items-center">
+      <div class="flex items-center space-x-3">
+        <i class="fas fa-book text-blue-300"></i>
+        <h2 class="text-xl font-semibold">Edit Subject</h2>
+      </div>
+      <button id="cancelEditSubject" class="text-gray-300 hover:text-white">
+        <i class="fas fa-times text-lg"></i>
+      </button>
+    </div>
+
+    <!-- Modal Body -->
+    <form id="editSubjectForm" class="p-6 space-y-5">
+      <input type="hidden" id="editSubjectId">
+
+      <!-- Name Field -->
+      <div>
+        <label for="editSubjectName" class="block text-sm font-medium text-gray-700 mb-1">
+          Subject Name <span class="text-red-500">*</span>
+        </label>
+        <div class="relative">
+          <input
+                  type="text"
+                  id="editSubjectName"
+                  class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition placeholder-gray-400"
+                  placeholder="Enter subject name"
+                  required
+          >
+          <div class="absolute inset-y-0 right-0 flex items-center pr-3 pointer-events-none">
+            <i class="fas fa-book text-gray-400"></i>
+          </div>
+        </div>
+      </div>
+
+      <!-- Code Field -->
+      <div>
+        <label for="editSubjectCode" class="block text-sm font-medium text-gray-700 mb-1">
+          Subject Code <span class="text-red-500">*</span>
+        </label>
+        <div class="relative">
+          <input
+                  type="text"
+                  id="editSubjectCode"
+                  class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition placeholder-gray-400"
+                  placeholder="e.g. CS101"
+                  required
+          >
+          <div class="absolute inset-y-0 right-0 flex items-center pr-3 pointer-events-none">
+            <i class="fas fa-hashtag text-gray-400"></i>
+          </div>
+        </div>
+      </div>
+
+      <!-- Description Field -->
+      <div>
+        <label for="editSubjectDescription" class="block text-sm font-medium text-gray-700 mb-1">
+          Description
+        </label>
+        <textarea
+                id="editSubjectDescription"
+                rows="3"
+                class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition placeholder-gray-400"
+                placeholder="Enter subject description..."
+        ></textarea>
+      </div>
+
+      <!-- Modal Footer -->
+      <div class="flex justify-end space-x-3 pt-4 border-t border-gray-200">
+        <button
+                type="button"
+                id="cancelEditSubjectBtn"
+                class="px-5 py-2.5 border border-gray-300 rounded-lg text-gray-700 hover:bg-gray-50 transition flex items-center"
+        >
+          <i class="fas fa-times mr-2"></i> Cancel
+        </button>
+        <button
+                type="submit"
+                class="px-5 py-2.5 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition flex items-center shadow-md hover:shadow-lg"
+        >
+          <i class="fas fa-save mr-2"></i> Save Changes
+        </button>
+      </div>
+    </form>
+  </div>
+</div>
+
+
+<div id="assignModal" class="hidden fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
+  <div class="bg-white rounded-lg shadow-lg w-full max-w-2xl">
+    <!-- Modal Header -->
+    <div class="flex justify-between items-center px-6 py-4 bg-gray-700 text-white rounded-t-lg">
+      <h3 class="text-lg font-semibold">Assign Teacher</h3>
+      <button id="closeAssignModal" class="text-white hover:text-gray-300">
+        <i class="fas fa-times"></i>
+      </button>
+    </div>
+
+    <!-- Modal Body -->
+    <div class="p-6 space-y-6">
+      <!-- Subjects Section -->
+      <div class="relative mb-4">
+        <label for="assignModalSubjectsSelect" class="block text-sm font-medium text-gray-700">Assigned Subjects</label>
+        <select
+                id="assignModalSubjectsSelect"
+                class="block w-full appearance-none bg-gray-50 border border-gray-300 rounded-lg py-2 px-3 text-gray-700 focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 text-sm"
+        >
+          <option value="" disabled selected>Select a subject</option>
+        </select>
+        <div class="absolute inset-y-0 right-0 flex items-center pr-3 pointer-events-none">
+          <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 text-gray-400" viewBox="0 0 20 20" fill="currentColor">
+            <path fill-rule="evenodd" d="M5.293 7.293a1 1 0 011.414 0L10 10.586l3.293-3.293a1 1 0 111.414 1.414l-4 4a1 1 0 01-1.414 0l-4-4a1 1 0 010-1.414z" clip-rule="evenodd" />
+          </svg>
+        </div>
+      </div>
+
+      <!-- Teachers Section -->
+      <div class="relative mb-4">
+        <label for="assignModalTeachersSelect" class="block text-sm font-medium text-gray-700">Select Teachers</label>
+        <select
+                id="assignModalTeachersSelect"
+                multiple
+                class="block w-full appearance-none bg-gray-50 border border-gray-300 rounded-lg py-2 px-3 text-gray-700 focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 text-sm"
+        >
+          <option value="" disabled>Select teachers</option>
+        </select>
+        <div class="absolute inset-y-0 right-0 flex items-center pr-3 pointer-events-none">
+          <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 text-gray-400" viewBox="0 0 20 20" fill="currentColor">
+            <path fill-rule="evenodd" d="M5.293 7.293a1 1 0 011.414 0L10 10.586l3.293-3.293a1 1 0 111.414 1.414l-4 4a1 1 0 01-1.414 0l-4-4a1 1 0 010-1.414z" clip-rule="evenodd" />
+          </svg>
+        </div>
+      </div>
+    </div>
+
+    <!-- Modal Footer -->
+    <div class="flex justify-end px-6 py-4 bg-gray-100 rounded-b-lg">
+      <button id="closeAssignModalFooter" class="px-4 py-2 bg-gray-500 text-white rounded-lg hover:bg-gray-600 transition">
+        Close
+      </button>
+      <button id="assignTeacherToCourseButton"
+              class="px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition">
+        Assign Teacher to Course
+      </button>
+    </div>
+  </div>
+</div>
+<script>
+  const apiBaseUrl = '/api/courses';
+  const selectedSubjects = new Set();
+
+  // Fetch Active Courses and Populate Table
+  async function fetchActiveCourses() {
+    try {
+      const response = await fetch(`${apiBaseUrl}/allActive`);
+      if (!response.ok) throw new Error('Failed to fetch active courses');
+      const courses = await response.json();
+      const tableBody = document.querySelector('#activeCoursesTable tbody');
+      tableBody.innerHTML = ''; // Clear existing rows
+
+      for (const course of courses) {
+        try {
+          // Fetch total students for the course
+          const totalStudentsResponse = await fetch(`/api/enrollments/totalStudents/${course.id}`);
+          if (!totalStudentsResponse.ok) throw new Error(`Failed to fetch total students for course ID ${course.id}`);
+          const totalStudents = await totalStudentsResponse.json();
+
+          // Create a new row for the course
+          const row = document.createElement('tr');
+          row.classList.add('hover:bg-gray-200', 'odd:bg-gray-100', 'even:bg-white', 'cursor-pointer');
+          row.innerHTML = `
+  <td class="border border-gray-300 px-4 py-2">${course.name}</td>
+  <td class="border border-gray-300 px-4 py-2">${course.description}</td>
+  <td class="border border-gray-300 px-2 py-2 total-students">${totalStudents}</td>
+`;
+          row.addEventListener('click', () => openCourseDetailsModal(course));
+          tableBody.appendChild(row);
+        } catch (error) {
+          console.error(`Error fetching total students for course ID ${course.id}:`, error);
+          const row = document.createElement('tr');
+          row.innerHTML = `
+          <td class="border border-gray-300 px-4 py-2">${course.name}</td>
+          <td class="border border-gray-300 px-4 py-2">${course.description}</td>
+          <td class="border border-gray-300 px-4 py-2 text-center text-red-500">Error</td>
+        `;
+          tableBody.appendChild(row);
+        }
+      }
+    } catch (error) {
+      alert(error.message || 'Error fetching active courses');
+      console.error('Error:', error);
+    }
+  }
+
+
+  // Modal Logic
+  const createCourseButton = document.getElementById('createCourseButton');
+  const createCourseModal = document.getElementById('createCourseModal');
+  const cancelCreateCourse = document.getElementById('cancelCreateCourse');
+  const createCourseForm = document.getElementById('createCourseForm');
+
+  createCourseButton.addEventListener('click', () => {
+    createCourseModal.classList.remove('hidden');
+  });
+
+  cancelCreateCourse.addEventListener('click', () => {
+    createCourseModal.classList.add('hidden');
+  });
+
+  createCourseForm.addEventListener('submit', async (e) => {
+    e.preventDefault();
+    const name = document.getElementById('courseName').value;
+    const description = document.getElementById('courseDescription').value;
+    const credits = document.getElementById('courseCredits').value;
+
+    try {
+      const response = await fetch(`${apiBaseUrl}/create`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ name, description, credits })
+      });
+
+      if (!response.ok) throw new Error('Failed to create course');
+      alert('Course created successfully!');
+      createCourseModal.classList.add('hidden');
+      fetchActiveCourses(); // Refresh the table
+    } catch (error) {
+      alert(error.message || 'Error creating course');
+      console.error('Error:', error);
+    }
+  });
+
+  async function openCourseDetailsModal(course) {
+    document.getElementById('courseDetailName').textContent = course.name;
+    document.getElementById('courseDetailName').dataset.courseId = course.id;
+    document.getElementById('courseDetailDescription').textContent = course.description;
+    document.getElementById('courseDetailCredits').textContent = course.credits;
+
+    document.getElementById('courseDetailName').value = course.name;
+    document.getElementById('courseDetailName').dataset.courseId = course.id;
+    document.getElementById('courseDetailDescription').value = course.description;
+    document.getElementById('courseDetailCredits').value = course.credits;
+
+    document.getElementById('courseDetailsModal').classList.remove('hidden');
+
+    const teacherDetails = document.getElementById('courseDetailTeachers');
+    const teacherList = teacherDetails.querySelector('ul');
+    teacherList.innerHTML = ''; // Clear existing list
+
+    try {
+      // Fetch teachers for the course
+      const response = await fetch(`/api/courses/teachers/${course.id}`);
+      if (!response.ok) throw new Error('Failed to fetch teachers for the course');
+      const teachers = await response.json();
+
+      if (teachers.length === 0) {
+        // Display fallback message if no teachers are assigned
+        const listItem = document.createElement('li');
+        listItem.textContent = 'No teachers assigned';
+        listItem.classList.add('text-gray-500');
+        teacherList.appendChild(listItem);
+      } else {
+        // Populate the teacher list
+        teachers.forEach(teacher => {
+          const listItem = document.createElement('li');
+          listItem.textContent = `${teacher.name} (${teacher.email})`;
+          teacherList.appendChild(listItem);
+        });
+      }
+    } catch (error) {
+      console.error('Error fetching teachers:', error);
+      const listItem = document.createElement('li');
+      listItem.textContent = 'Failed to load teachers';
+      listItem.classList.add('text-red-500');
+      teacherList.appendChild(listItem);
+    }
+
+    document.getElementById('courseDetailsModal').classList.remove('hidden');
+    // Set up Deactivate button
+    document.getElementById('deactivateCourse').onclick = async () => {
+      if (confirm(`Are you sure you want to deactivate the course "${course.name}"?`)) {
+        try {
+          const response = await fetch(`${apiBaseUrl}/deactivate/${course.id}`, { method: 'DELETE' });
+          if (!response.ok) throw new Error('Failed to deactivate course');
+          alert('Course deactivated successfully!');
+          document.getElementById('courseDetailsModal').classList.add('hidden');
+          fetchActiveCourses(); // Refresh the table
+        } catch (error) {
+          alert(error.message || 'Error deactivating course');
+          console.error('Error:', error);
+        }
+      }
+    };
+    selectedSubjects.clear();
+    document.getElementById('selectedSubjectsContainer').innerHTML =
+            '<p class="text-sm text-gray-500 text-center py-4" id="noSubjectsMessage">No subjects selected</p>';
+
+    // Populate subject dropdown
+    await populateSubjectDropdown(course.id);
+    await fetchAssignedSubjects(course.id);
+    await fetchSubjectsForAssignModal(course.id);
+  }
+
+  document.getElementById('assignTeacherToCourseButton').addEventListener('click', async () => {
+    const courseId = document.getElementById('courseDetailName').dataset.courseId; // Get course ID
+    const subjectId = document.getElementById('assignModalSubjectsSelect').value; // Get selected subject
+    const teacherId = document.getElementById('assignModalTeachersSelect').value; // Get selected teacher
+
+    if (!courseId || !subjectId || !teacherId) {
+      alert('Please select a course, subject, and teacher.');
+      return;
+    }
+
+    try {
+      const response = await fetch(`/api/teacher-subject-grade/assign?teacherId=${teacherId}&subjectId=${subjectId}&courseId=${courseId}`, {
+        method: 'POST',
+      });
+
+      if (!response.ok) {
+        const errorData = await response.json();
+        throw new Error(errorData.message || 'Failed to assign teacher to course');
+      }
+
+      alert('Teacher successfully assigned to the course!');
+      document.getElementById('assignModal').classList.add('hidden'); // Close modal
+    } catch (error) {
+      console.error('Error:', error);
+      alert(error.message || 'Error assigning teacher to course');
+    }
+  });
+
+
+  // Close Course Details Modal
+  document.getElementById('cancelCourseDetails').addEventListener('click', () => {
+    document.getElementById('courseDetailsModal').classList.add('hidden');
+  });
+  document.addEventListener('DOMContentLoaded', fetchActiveCourses);
+
+  document.getElementById('editCourse').addEventListener('click', async () => {
+    const courseId = document.getElementById('courseDetailName').dataset.courseId;
+    const name = document.getElementById('courseDetailName').value;
+    const description = document.getElementById('courseDetailDescription').value;
+    const credits = document.getElementById('courseDetailCredits').value;
+
+    try {
+      const response = await fetch(`/api/courses/update/${courseId}`, {
+        method: 'PUT',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ name, description, credits })
+      });
+
+      if (!response.ok) throw new Error('Failed to update course');
+      alert('Course updated successfully!');
+      document.getElementById('courseDetailsModal').classList.add('hidden');
+      fetchActiveCourses(); // Refresh the course list
+    } catch (error) {
+      alert(error.message || 'Error updating course');
+      console.error('Error:', error);
+    }
+  });
+
+  async function populateSubjectDropdown(courseId) {
+    try {
+      // Fetch subjects not assigned to this course
+      const response = await fetch(`/api/subject/notAssigned/${courseId}`);
+      if (!response.ok) throw new Error('Failed to fetch available subjects');
+      const subjects = await response.json();
+
+      const assignSubjectSelect = document.getElementById('assignSubjectSelect');
+      const selectedSubjectsContainer = document.getElementById('selectedSubjectsContainer');
+
+      // Clear existing options and selections
+      assignSubjectSelect.innerHTML = '';
+      selectedSubjectsContainer.innerHTML = '';
+      selectedSubjects.clear();
+
+      // Show fallback message if no subjects available
+      if (subjects.length === 0) {
+        selectedSubjectsContainer.innerHTML = '<p class="text-sm text-gray-500 text-center py-4">No subjects available to assign</p>';
+        document.getElementById('assignCourseButton').disabled = true;
+        return;
+      }
+
+      // Add a default option
+      const defaultOption = document.createElement('option');
+      defaultOption.textContent = 'Select a subject';
+      defaultOption.value = '';
+      defaultOption.disabled = true;
+      defaultOption.selected = true;
+      assignSubjectSelect.appendChild(defaultOption);
+
+      // Add available subjects
+      subjects.forEach(subject => {
+        const option = document.createElement('option');
+        option.value = subject.id;
+        option.textContent = ` - ${subject.name}`;
+        assignSubjectSelect.appendChild(option);
+      });
+
+      // Enable assign button if there are subjects
+      document.getElementById('assignCourseButton').disabled = false;
+    } catch (error) {
+      console.error('Error fetching subjects:', error);
+      // Show error message in the dropdown
+      const assignSubjectSelect = document.getElementById('assignSubjectSelect');
+      assignSubjectSelect.innerHTML = '<option value="">Error loading subjects</option>';
+      document.getElementById('assignCourseButton').disabled = true;
+    }
+  }
+
+  // Handle Assign button click
+  document.getElementById('assignCourseButton').addEventListener('click', async () => {
+    const courseId = document.getElementById('courseDetailName').dataset.courseId;
+    const subjectIds = Array.from(selectedSubjects); // Ensure this is an array
+
+    if (subjectIds.length === 0) {
+      alert('Please select at least one subject');
+      return;
+    }
+
+    try {
+      const response = await fetch(`/api/courses/${courseId}/assignSubjects`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(subjectIds) // Send as a plain array
+      });
+
+      if (!response.ok) {
+        const errorData = await response.json();
+        throw new Error(errorData.message || 'Failed to assign subjects');
+      }
+
+      alert('Subjects assigned successfully!');
+      selectedSubjects.clear();
+      document.getElementById('selectedSubjectsContainer').innerHTML =
+              '<p class="text-sm text-gray-500 text-center py-4" id="noSubjectsMessage">No subjects selected</p>';
+      document.getElementById('assignSubjectSelect').selectedIndex = 0;
+
+      await populateSubjectDropdown(courseId); // Refresh the dropdown
+    } catch (error) {
+      console.error('Error:', error);
+      alert(error.message || 'Error assigning subjects');
+    }
+  });
+
+  document.getElementById('assignSubjectSelect').addEventListener('change', (e) => {
+    const selectedOption = e.target.options[e.target.selectedIndex];
+    if (!selectedOption.value) return;
+
+    const subjectId = selectedOption.value;
+    const subjectText = selectedOption.textContent;
+
+    if (!selectedSubjects.has(subjectId)) {
+      selectedSubjects.add(subjectId);
+      updateSelectedSubjectsDisplay();
+      e.target.selectedIndex = 0; // Reset dropdown
+    }
+  });
+
+  // Helper function to update the display of selected subjects
+  function updateSelectedSubjectsDisplay() {
+    const container = document.getElementById('selectedSubjectsContainer');
+    container.innerHTML = '';
+
+    if (selectedSubjects.size === 0) {
+      container.innerHTML = '<p class="text-sm text-gray-500 text-center py-4" id="noSubjectsMessage">No subjects selected</p>';
+      return;
+    }
+
+    const assignSubjectSelect = document.getElementById('assignSubjectSelect');
+    Array.from(assignSubjectSelect.options).forEach(option => {
+      if (selectedSubjects.has(option.value)) {
+        const tag = document.createElement('span');
+        tag.className = 'inline-block bg-blue-100 text-blue-800 px-3 py-1 rounded-lg shadow-sm cursor-pointer mr-2 mb-2';
+        tag.textContent = option.textContent;
+        tag.dataset.subjectId = option.value;
+
+        tag.addEventListener('click', () => {
+          selectedSubjects.delete(option.value);
+          updateSelectedSubjectsDisplay();
+        });
+
+        container.appendChild(tag);
+      }
+    });
+
+    document.getElementById('selectedCount').textContent = selectedSubjects.size;
+  }
+
+  document.getElementById('selectAllButton').addEventListener('click', () => {
+    const assignSubjectSelect = document.getElementById('assignSubjectSelect');
+    const options = Array.from(assignSubjectSelect.options);
+
+    // Clear the selectedSubjects container
+    const selectedSubjectsContainer = document.getElementById('selectedSubjectsContainer');
+    selectedSubjectsContainer.innerHTML = '';
+    selectedSubjects.clear();
+
+    options.forEach(option => {
+      const subjectId = option.value;
+      const subjectName = option.textContent;
+
+      if (subjectId) {
+        selectedSubjects.add(subjectId);
+
+        // Create a tag for the selected subject
+        const tag = document.createElement('span');
+        tag.className = 'inline-block bg-blue-100 text-blue-800 px-3 py-1 rounded-lg shadow-sm cursor-pointer mr-2 mb-2';
+        tag.textContent = subjectName;
+        tag.dataset.subjectId = subjectId;
+
+        // Remove tag on click
+        tag.addEventListener('click', () => {
+          selectedSubjects.delete(subjectId);
+          tag.remove();
+
+          // Show fallback message if no subjects are selected
+          if (selectedSubjects.size === 0) {
+            document.getElementById('noSubjectsMessage').style.display = 'block';
+          }
+        });
+
+        selectedSubjectsContainer.appendChild(tag);
+      }
+    });
+
+    // Hide fallback message
+    document.getElementById('noSubjectsMessage').style.display = 'none';
+
+    // Update the selected count
+    document.getElementById('selectedCount').textContent = selectedSubjects.size;
+  });
+
+  async function fetchAssignedSubjects(courseId) {
+    const assignedSubjectsList = document.getElementById('assignedSubjectsList');
+    assignedSubjectsList.innerHTML = ''; // Clear previous data
+
+    try {
+      const response = await fetch(`/api/subject/assigned/${courseId}`);
+      if (!response.ok) throw new Error('Failed to fetch assigned subjects');
+      const subjects = await response.json();
+
+      if (subjects.length === 0) {
+        const listItem = document.createElement('li');
+        listItem.textContent = 'No assigned subjects';
+        listItem.classList.add('text-gray-500');
+        assignedSubjectsList.appendChild(listItem);
+      } else {
+        subjects.forEach(subject => {
+          const listItem = document.createElement('li');
+          listItem.textContent = `${subject.name} (${subject.code}) - ${subject.description}`;
+          assignedSubjectsList.appendChild(listItem);
+        });
+      }
+    } catch (error) {
+      console.error('Error fetching assigned subjects:', error);
+      const listItem = document.createElement('li');
+      listItem.textContent = 'Failed to load assigned subjects';
+      listItem.classList.add('text-red-500');
+      assignedSubjectsList.appendChild(listItem);
+    }
+  }
+
+  async function fetchSubjectsForAssignModal(courseId) {
+    const subjectsSelect = document.getElementById('assignModalSubjectsSelect');
+    const teachersSelect = document.getElementById('assignModalTeachersSelect');
+
+    // Clear previous data
+    subjectsSelect.innerHTML = '<option value="" disabled selected>Loading subjects...</option>';
+    teachersSelect.innerHTML = '<option value="" disabled selected>Select a subject first</option>';
+    teachersSelect.disabled = true;
+
+    if (!courseId) {
+      console.error('Invalid courseId:', courseId);
+      subjectsSelect.innerHTML = '<option value="" disabled selected>Invalid course</option>';
+      return;
+    }
+
+    try {
+      // Fetch assigned subjects for the course
+      const response = await fetch(`/api/subject/assigned/${courseId}`);
+      if (!response.ok) throw new Error('Failed to fetch assigned subjects');
+      const subjects = await response.json();
+
+      // Populate subjects dropdown
+      subjectsSelect.innerHTML = '<option value="" disabled selected>Select a subject</option>';
+
+      if (subjects.length === 0) {
+        const option = document.createElement('option');
+        option.textContent = 'No subjects assigned to this course';
+        option.disabled = true;
+        subjectsSelect.appendChild(option);
+        return;
+      }
+
+      subjects.forEach(subject => {
+        const option = document.createElement('option');
+        option.value = subject.id;
+        option.textContent = `${subject.code} - ${subject.name}`;
+        option.dataset.subjectName = subject.name; // Store additional data if needed
+        subjectsSelect.appendChild(option);
+      });
+
+      // Add event listener for subject selection
+      subjectsSelect.addEventListener('change', async (e) => {
+        const subjectId = e.target.value;
+        const subjectName = e.target.options[e.target.selectedIndex]?.dataset.subjectName || '';
+
+        if (!subjectId) {
+          teachersSelect.innerHTML = '<option value="" disabled selected>Select a subject first</option>';
+          teachersSelect.disabled = true;
+          return;
+        }
+
+        // Show loading state
+        teachersSelect.innerHTML = '<option value="" disabled selected>Loading teachers...</option>';
+        teachersSelect.disabled = true;
+
+        try {
+          // Fetch teachers for the selected subject using the correct API endpoint
+          const teacherResponse = await fetch(`/api/admin/teachers/bySubject/${subjectId}`);
+
+          if (!teacherResponse.ok) {
+            throw new Error(`HTTP error! status: ${teacherResponse.status}`);
+          }
+
+          const teachers = await teacherResponse.json();
+
+          // Populate teachers dropdown
+          teachersSelect.innerHTML = '<option value="" disabled selected>Select a teacher</option>';
+
+          if (teachers.length === 0) {
+            const option = document.createElement('option');
+            option.textContent = 'No teachers available for this subject';
+            option.disabled = true;
+            teachersSelect.appendChild(option);
+          } else {
+            teachers.forEach(teacher => {
+              const option = document.createElement('option');
+              option.value = teacher.id;
+              option.textContent = `${teacher.name} (${teacher.subjectName || 'No department'})`;
+              option.dataset.teacherEmail = teacher.email; // Store additional data
+              teachersSelect.appendChild(option);
+            });
+            teachersSelect.disabled = false;
+          }
+        } catch (error) {
+          console.error('Error fetching teachers:', error);
+          teachersSelect.innerHTML = '<option value="" disabled selected>Error loading teachers</option>';
+        }
+      });
+
+    } catch (error) {
+      console.error('Error fetching assigned subjects:', error);
+      subjectsSelect.innerHTML = '<option value="" disabled selected>Error loading subjects</option>';
+    }
+  }
+  // Add event listener to the "Assign Teacher" button
+  document.getElementById('assignTeacherButton').addEventListener('click', () => {
+    const assignModal = document.getElementById('assignModal');
+    assignModal.classList.remove('hidden');
+  });
+
+  // Add event listener to close the modal
+  document.getElementById('closeAssignModal').addEventListener('click', () => {
+    const assignModal = document.getElementById('assignModal');
+    assignModal.classList.add('hidden');
+  });
+  document.addEventListener('DOMContentLoaded', async () => {
+    const top10SubjectsTableBody = document.querySelector('#top10SubjectsTable tbody');
+
+    try {
+      const response = await fetch('/api/subject/top10');
+      if (!response.ok) throw new Error('Failed to fetch top 10 subjects');
+
+      const subjects = await response.json();
+
+      // Clear existing rows
+      top10SubjectsTableBody.innerHTML = '';
+
+      // Populate the table with subjects
+      subjects.forEach((subject, index) => {
+        const row = document.createElement('tr');
+
+        row.innerHTML = `
+        <td class="px-4 py-2 border-b text-sm text-gray-700">${subject.name}</td>
+        <td class="px-4 py-2 border-b text-sm text-gray-700">${subject.code}</td>
+        <td class="px-4 py-2 border-b text-sm text-gray-700">${subject.description || 'N/A'}</td>
+
+      `;
+
+        top10SubjectsTableBody.appendChild(row);
+      });
+    } catch (error) {
+      console.error('Error fetching top 10 subjects:', error);
+      top10SubjectsTableBody.innerHTML = `
+      <tr>
+        <td colspan="3" class="px-4 py-2 text-center text-red-500">Failed to load top 10 subjects</td>
+      </tr>
+    `;
+    }
+  });
+
+  const filterButton = document.getElementById('filterButton');
+  const filterFormContainer = document.getElementById('filterFormContainer');
+
+  // Add click event listener to toggle the filter form visibility
+  filterButton.addEventListener('click', () => {
+    filterFormContainer.classList.toggle('hidden');
+  });
+
+  document.querySelector('.add-new-subject-button').addEventListener('click', () => {
+    document.getElementById('createSubjectModal').classList.remove('hidden');
+  });
+
+  // Close the Create Subject Modal
+  document.getElementById('cancelCreateSubject').addEventListener('click', () => {
+    document.getElementById('createSubjectModal').classList.add('hidden');
+  });
+
+  // Handle Create Subject Form Submission
+  document.getElementById('createSubjectButton').addEventListener('click', async () => {
+    const name = document.getElementById('subjectName').value;
+    const code = document.getElementById('subjectCode').value;
+    const description = document.getElementById('subjectDescription').value;
+
+    try {
+      const response = await fetch('/api/subject', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ name, code, description })
+      });
+
+      if (!response.ok) throw new Error('Failed to create subject');
+      alert('Subject created successfully!');
+      document.getElementById('createSubjectModal').classList.add('hidden');
+      // Optionally refresh the subject list or perform other actions
+    } catch (error) {
+      alert(error.message || 'Error creating subject');
+      console.error('Error:', error);
+    }
+  });
+
+  document.addEventListener('DOMContentLoaded', () => {
+    const editSubjectModal = document.getElementById('editSubjectModal');
+    const editSubjectForm = document.getElementById('editSubjectForm');
+    const cancelEditSubject = document.getElementById('cancelEditSubject');
+
+    async function fetchSubjects() {
+      try {
+        const response = await fetch('/api/subject/top10');
+        if (!response.ok) throw new Error('Failed to fetch subjects');
+        const subjects = await response.json();
+
+        const top10SubjectsTableBody = document.querySelector('#top10SubjectsTable tbody');
+        top10SubjectsTableBody.innerHTML = '';
+        subjects.forEach(subject => {
+          const row = document.createElement('tr');
+          row.innerHTML = `
+          <td class="px-4 py-2 border-b text-sm text-gray-700">${subject.name}</td>
+          <td class="px-4 py-2 border-b text-sm text-gray-700">${subject.code}</td>
+          <td class="px-4 py-2 border-b text-sm text-gray-700">${subject.description || 'N/A'}</td>
+          <td class="px-4 py-2 border-b text-sm text-gray-700">
+            <button class="edit-button flex items-center justify-center p-2 text-black rounded-md hover:bg-gray-300 transition-colors shadow active:scale-95"
+              data-id="${subject.id}"
+              data-name="${subject.name}"
+              data-code="${subject.code}"
+              data-description="${subject.description || ''}">
+              <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z" />
+              </svg>
+            </button>
+          </td>
+        `;
+          top10SubjectsTableBody.appendChild(row);
+        });
+        document.querySelectorAll('.edit-button').forEach(button => {
+          button.addEventListener('click', (event) => {
+            const buttonElement = event.currentTarget;
+            const subjectId = buttonElement.dataset.id;
+            const subjectName = buttonElement.dataset.name;
+            const subjectCode = buttonElement.dataset.code;
+            const subjectDescription = buttonElement.dataset.description;
+            document.getElementById('editSubjectId').value = subjectId;
+            document.getElementById('editSubjectName').value = subjectName;
+            document.getElementById('editSubjectCode').value = subjectCode;
+            document.getElementById('editSubjectDescription').value = subjectDescription;
+
+            editSubjectModal.classList.remove('hidden');
+          });
+        });
+      } catch (error) {
+        console.error('Error fetching subjects:', error);
+      }
+    }
+
+    editSubjectForm.addEventListener('submit', async (event) => {
+      event.preventDefault();
+      const id = document.getElementById('editSubjectId').value;
+      const name = document.getElementById('editSubjectName').value;
+      const code = document.getElementById('editSubjectCode').value;
+      const description = document.getElementById('editSubjectDescription').value;
+
+      try {
+        const response = await fetch(`/api/subject/${id}`, {
+          method: 'PUT',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ name, code, description })
+        });
+
+        if (!response.ok) throw new Error('Failed to update subject');
+        alert('Subject updated successfully!');
+        editSubjectModal.classList.add('hidden');
+        fetchSubjects(); // Refresh the table
+      } catch (error) {
+        alert(error.message || 'Error updating subject');
+        console.error('Error:', error);
+      }
+    });
+    cancelEditSubject.addEventListener('click', () => {
+      editSubjectModal.classList.add('hidden');
+    });
+    fetchSubjects();
+  });
+
+  populateSubjectDropdown();
+</script>
+</body>
+</html>

@@ -1,0 +1,874 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="utf-8"/>
+  <meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+  <title>SIS Project - Enrollment</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+  <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.3/css/all.min.css" rel="stylesheet"/>
+  <link href="https://fonts.googleapis.com/css2?family=Roboto:wght@400;500;700&display=swap" rel="stylesheet"/>
+  <style>
+    body {
+      font-family: 'Roboto', sans-serif;
+    }
+    .sidebar {
+      transition: all 0.3s;
+    }
+    .mt-6 {
+      box-shadow: 0 8px 20px rgba(0, 0, 0, 0.15); /* Softer and more spread-out shadow */
+    }
+  </style>
+</head>
+<body class="bg-gray-100">
+<div class="flex h-screen">
+  <!-- Sidebar -->
+  <aside class="fixed inset-y-0 left-0 w-72 bg-white shadow-xl rounded-tr-3xl rounded-br-3xl flex flex-col justify-between border border-gray-300">
+    <div>
+      <div class="flex items-center gap-4 px-8 py-8 border-b border-gray-300">
+        <img alt="School Logo, a classic maroon shield with gold trim and an open book in the center" class="w-20 h-20 rounded-lg shadow-md" height="80" src="images/logo.png" width="80"/>
+        <h1 class="text-3xl font-bold text-gray-800 select-none tracking-wide">
+          RUPP
+        </h1>
+      </div>
+      <nav class="mt-10 flex flex-col space-y-3 px-6">
+        <a class="flex items-center gap-4 px-5 py-3 rounded-lg text-gray-700 hover:bg-gray-200 hover:text-gray-900 transition" href="dashboard.html">
+          <i class="fas fa-home text-lg"></i>
+          <span class="font-semibold text-lg">Dashboard</span>
+        </a>
+        <a class="flex items-center gap-4 px-5 py-3 rounded-lg text-gray-700 hover:bg-gray-200 hover:text-gray-900 transition" href="student.html">
+          <i class="fas fa-users text-lg"></i>
+          <span class="font-semibold text-lg">Students</span>
+        </a>
+        <a class="flex items-center gap-4 px-5 py-3 rounded-lg text-gray-700 hover:bg-gray-200 hover:text-gray-900 transition" href="course.html">
+          <i class="fas fa-book text-lg"></i>
+          <span class="font-semibold text-lg">Courses</span>
+        </a>
+        <a class="flex items-center gap-4 px-5 py-3 rounded-lg text-gray-700 hover:bg-gray-200 hover:text-gray-900 transition" href="teacher.html">
+          <i class="fas fa-chalkboard-teacher text-lg"></i>
+          <span class="font-semibold text-lg">Teachers</span>
+        </a>
+        <a aria-current="page" class="flex items-center gap-4 px-5 py-3 rounded-lg bg-gray-800 text-white shadow-lg font-semibold text-lg" href="enrollment.html">
+          <i class="fas fa-clipboard-list text-lg"></i>
+          <span>Enrollments</span>
+        </a>
+      </nav>
+    </div>
+    <div class="px-6 py-6 border-t border-gray-300 text-center text-gray-500 text-sm select-none">
+      © 2025 Royal University of Phnom Penh. All rights reserved.
+    </div>
+  </aside>
+
+  <!-- Main Content -->
+  <div class="flex-1 flex flex-col overflow-hidden ml-72">
+    <!-- Top Header -->
+    <header class="bg-white shadow-sm z-10">
+      <div class="flex items-center justify-between px-6 py-5 border-b border-gray-200">
+        <h1 class="text-2xl font-bold text-gray-800">Manage Enrollments</h1>
+        <div class="flex space-x-3">
+          <button id="filterButton" class="px-5 py-2 bg-gray-200 text-gray-800 rounded-lg hover:bg-gray-300 transition">
+            <i class="fas fa-filter mr-2"></i>Filter
+          </button>
+          <button id="enrollButton" class="px-5 py-2 bg-gray-800 text-white rounded-lg hover:bg-gray-900 transition">
+            <i class="fas fa-plus mr-2"></i>Enroll
+          </button>
+        </div>
+      </div>
+      <div id="filterFormContainer" class="hidden px-6 py-4 bg-white border-b border-gray-200 shadow-sm">
+        <form id="filterForm" class="grid grid-cols-1 md:grid-cols-5 gap-4 items-end">
+          <!-- Student Search (with autocomplete) -->
+          <div>
+            <label for="filterStudent" class="block text-xs font-medium text-gray-500 uppercase tracking-wider mb-1">Student</label>
+            <div class="relative">
+              <input type="text" id="filterStudent"
+                     class="w-full border-b border-gray-300 px-2 py-2 focus:outline-none focus:border-gray-800 bg-transparent"
+                     placeholder="Any student"/>
+              <div class="absolute right-2 top-2 text-gray-400">
+              <i class="fas fa-user"></i>
+            </div>
+              <button id="clearStudentFilter" class="absolute right-8 top-2 text-gray-400 hover:text-gray-600 hidden">
+                <i class="fas fa-times"></i>
+              </button>
+              <ul id="filterStudentResults" class="absolute bg-white border border-gray-300 rounded-md shadow-lg mt-1 w-full z-10 hidden"></ul>
+            </div>
+          </div>
+
+
+          <!-- Course Search (with autocomplete) -->
+          <div>
+            <label for="filterCourse" class="block text-xs font-medium text-gray-500 uppercase tracking-wider mb-1">Course</label>
+            <div class="relative">
+              <input type="text" id="filterCourse"
+                     class="w-full border-b border-gray-300 px-2 py-2 focus:outline-none focus:border-gray-800 bg-transparent"
+                     placeholder="Any course"/>
+              <div class="absolute right-2 top-2 text-gray-400">
+                <i class="fas fa-book"></i>
+              </div>
+              <button id="clearCourseFilter" class="absolute right-8 top-2 text-gray-400 hover:text-gray-600 hidden">
+                <i class="fas fa-times"></i>
+              </button>
+            </div>
+            <ul id="filterCourseResults" class="absolute bg-white border border-gray-300 rounded-md shadow-lg mt-1 w-full z-10 hidden"></ul>
+          </div>
+
+          <!-- Academic Year -->
+          <div>
+            <label for="filterYear" class="block text-xs font-medium text-gray-500 uppercase tracking-wider mb-1">Year</label>
+            <select id="filterYear" class="w-full border-b border-gray-300 px-1 py-2 focus:outline-none focus:border-gray-800 bg-transparent">
+              <option value="">All Years</option>
+              <option value="2025">2025</option>
+              <option value="2024">2024</option>
+              <option value="2023">2023</option>
+            </select>
+          </div>
+
+          <!-- Semester -->
+          <div>
+            <label for="filterSemester" class="block text-xs font-medium text-gray-500 uppercase tracking-wider mb-1">Semester</label>
+            <select id="filterSemester" class="w-full border-b border-gray-300 px-1 py-2 focus:outline-none focus:border-gray-800 bg-transparent">
+              <option value="">All Semesters</option>
+              <option value="1">Semester 1</option>
+              <option value="2">Semester 2</option>
+            </select>
+          </div>
+
+          <!-- Status -->
+          <div>
+            <label for="filterStatus" class="block text-xs font-medium text-gray-500 uppercase tracking-wider mb-1">Status</label>
+            <select id="filterStatus" class="w-full border-b border-gray-300 px-1 py-2 focus:outline-none focus:border-gray-800 bg-transparent">
+              <option value="">All Statuses</option>
+              <option value="ACTIVE">Active</option>
+              <option value="COMPLETED">Completed</option>
+              <option value="DROPPED">Dropped</option>
+            </select>
+          </div>
+        </form>
+      </div>
+    </header>
+
+    <!-- Main Content Area -->
+    <main class="flex-1 overflow-x-hidden overflow-y-auto bg-gray-100 p-6">
+      <div class="mt-6 bg-white p-6 rounded-lg shadow-xl">
+        <div class="overflow-x-auto rounded-xl shadow-md">
+          <table class="min-w-full divide-y divide-gray-300" id="activeEnrollmentsTable">
+            <thead>
+            <tr class="bg-gray-100">
+              <th class="px-6 py-4 text-left text-xs font-semibold text-gray-600 uppercase tracking-wider">Student</th>
+              <th class="px-6 py-4 text-left text-xs font-semibold text-gray-600 uppercase tracking-wider">Course</th>
+              <th class="px-6 py-4 text-left text-xs font-semibold text-gray-600 uppercase tracking-wider">Semester</th>
+              <th class="px-6 py-4 text-left text-xs font-semibold text-gray-600 uppercase tracking-wider">Academic Year</th>
+              <th class="px-6 py-4 text-left text-xs font-semibold text-gray-600 uppercase tracking-wider">Status</th>
+            </tr>
+            </thead>
+            <tbody id="activeEnrollmentsTableBody" class="divide-y divide-gray-200 bg-white">
+            <!-- Active enrollment rows will be dynamically added here -->
+            </tbody>
+
+          </table>
+          <div class="flex justify-between items-center mt-4">
+            <button id="prevPage" class="px-4 py-2 bg-gray-800 text-white rounded-md hover:bg-gray-900 transition" disabled>Previous</button>
+            <span id="paginationInfo" class="text-gray-700"></span>
+            <button id="nextPage" class="px-4 py-2 bg-gray-800 text-white rounded-md hover:bg-gray-900 transition" disabled>Next</button>
+          </div>
+        </div>
+      </div>
+    </main>
+  </div>
+</div>
+
+<!-- Add Enrollment Modal -->
+<div id="addEnrollmentModal" class="fixed inset-0 bg-gray-600 bg-opacity-50 hidden flex justify-center items-center z-50">
+  <div class="bg-white p-8 rounded-lg shadow-lg w-full max-w-lg mx-4">
+    <h2 class="text-xl font-semibold text-gray-800 mb-6">Add New Enrollment</h2>
+    <form id="addEnrollmentForm" class="space-y-5">
+      <div>
+        <label for="studentSearch" class="block text-sm font-medium text-gray-700 mb-1">Student</label>
+        <input type="text" id="studentSearch" class="w-full border border-gray-300 rounded-md shadow-sm px-3 py-2 focus:outline-none focus:ring-2 focus:ring-gray-800" placeholder="Search student..." autocomplete="off"/>
+        <ul id="studentSearchResults" class="mt-2 bg-white border border-gray-300 rounded-md shadow-md max-h-40 overflow-y-auto hidden"></ul>
+        <input type="hidden" id="selectedStudentId" name="studentId"/>
+        <p id="studentGmailContainer" class="mt-1 text-sm text-gray-500 hidden">Email: <span id="studentGmail"></span></p>
+      </div>
+
+      <div>
+        <label for="courseSearch" class="block text-sm font-medium text-gray-700 mb-1">Courses</label>
+        <input id="courseSearch" type="text" placeholder="Search courses" class="w-full border border-gray-300 rounded-md shadow-sm px-3 py-2 focus:outline-none focus:ring-2 focus:ring-gray-800" />
+        <ul id="courseSearchResults" class="absolute bg-white border border-gray-300 rounded-md shadow-lg mt-1 w-full z-10 hidden"></ul>
+        <div id="selectedCoursesContainer" class="mt-2">
+          <!-- Selected courses will be displayed here -->
+        </div>
+      </div>
+
+      <div>
+        <label for="academicYear" class="block text-sm font-medium text-gray-700 mb-1">Academic Year</label>
+        <input list="academicYearOptions" id="academicYear" name="academicYear" required class="w-full border border-gray-300 rounded-md shadow-sm px-3 py-2 focus:outline-none focus:ring-2 focus:ring-gray-800" placeholder="e.g., 2023-2024" />
+        <datalist id="academicYearOptions">
+          <option value="2025-2026"></option>
+          <option value="2026-2027"></option>
+          <option value="2027-2028"></option>
+          <option value="2028-2029"></option>
+          <option value="2029-2030"></option>
+        </datalist>
+      </div>
+
+      <div>
+        <label for="semester" class="block text-sm font-medium text-gray-700 mb-1">Semester</label>
+        <select id="semester" name="semester" required class="w-full border border-gray-300 rounded-md shadow-sm px-3 py-2 focus:outline-none focus:ring-2 focus:ring-gray-800">
+          <option value="1" selected>Semester 1</option>
+          <option value="2">Semester 2</option>
+        </select>
+      </div>
+      <input type="hidden" id="status" name="status" value="ACTIVE"/>
+      <div class="flex justify-end space-x-3 pt-4 border-t border-gray-200">
+        <button type="button" id="closeModalButton" class="px-5 py-2 bg-gray-700 text-white rounded-md hover:bg-gray-800 transition">Cancel</button>
+        <button type="submit" class="px-5 py-2 bg-gray-800 text-white rounded-md hover:bg-black transition">Add</button>
+      </div>
+    </form>
+  </div>
+</div>
+
+<!-- Edit Enrollment Modal -->
+<div id="editEnrollmentModal" class="fixed inset-0 bg-gray-600 bg-opacity-50 hidden flex justify-center items-center z-50">
+  <div class="bg-white p-8 rounded-lg shadow-lg w-full max-w-lg mx-4">
+    <h2 class="text-xl font-semibold text-gray-800 mb-6">Edit Enrollment</h2>
+    <form id="editEnrollmentForm" class="space-y-5">
+      <input type="hidden" id="editEnrollmentId" name="enrollmentId">
+
+      <div>
+        <label class="block text-sm font-medium text-gray-700 mb-1">Student</label>
+        <p id="editStudentName" class="text-gray-800 font-medium"></p>
+      </div>
+
+      <div>
+        <label class="block text-sm font-medium text-gray-700 mb-1">Current Course</label>
+        <p id="editCurrentCourse" class="text-gray-800 font-medium mb-3"></p>
+
+        <label for="editCourseSearch" class="block text-sm font-medium text-gray-700 mb-1">Change Course</label>
+        <input type="text" id="editCourseSearch" class="w-full border border-gray-300 rounded-md shadow-sm px-3 py-2 focus:outline-none focus:ring-2 focus:ring-gray-800" placeholder="Search courses..." autocomplete="off"/>
+        <ul id="editCourseSearchResults" class="mt-1 bg-white border border-gray-300 rounded-md shadow-lg max-h-40 overflow-y-auto hidden"></ul>
+        <input type="hidden" id="editSelectedCourseId" name="courseId"/>
+      </div>
+
+      <div>
+        <label for="editAcademicYear" class="block text-sm font-medium text-gray-700 mb-1">Academic Year</label>
+        <input list="academicYearOptions" id="editAcademicYear" name="academicYear" class="w-full border border-gray-300 rounded-md shadow-sm px-3 py-2 focus:outline-none focus:ring-2 focus:ring-gray-800" />
+      </div>
+
+      <div>
+        <label for="editSemester" class="block text-sm font-medium text-gray-700 mb-1">Semester</label>
+        <select id="editSemester" name="semester" class="w-full border border-gray-300 rounded-md shadow-sm px-3 py-2 focus:outline-none focus:ring-2 focus:ring-gray-800">
+          <option value="1">Semester 1</option>
+          <option value="2">Semester 2</option>
+        </select>
+      </div>
+
+      <div>
+        <label for="editStatus" class="block text-sm font-medium text-gray-700 mb-1">Status</label>
+        <select id="editStatus" name="status" class="w-full border border-gray-300 rounded-md shadow-sm px-3 py-2 focus:outline-none focus:ring-2 focus:ring-gray-800">
+          <option value="ACTIVE">Active</option>
+          <option value="COMPLETED">Completed</option>
+          <option value="DROPPED">Dropped</option>
+        </select>
+      </div>
+
+      <div class="flex justify-end space-x-3 pt-4 border-t border-gray-200">
+        <button type="button" id="closeEditModalButton" class="px-5 py-2 bg-gray-700 text-white rounded-md hover:bg-gray-800 transition">Cancel</button>
+        <button type="submit" class="px-5 py-2 bg-gray-800 text-white rounded-md hover:bg-black transition">Save Changes</button>
+      </div>
+    </form>
+  </div>
+</div>
+
+
+<script>
+  const studentSearchInput = document.getElementById('studentSearch');
+  const studentSearchResults = document.getElementById('studentSearchResults');
+  const selectedStudentId = document.getElementById('selectedStudentId');
+  const courseSearchInput = document.getElementById('courseSearch');
+  const courseSearchResults = document.getElementById('courseSearchResults');
+  const selectedCoursesContainer = document.getElementById('selectedCoursesContainer');
+  const selectedCourseIds = [];
+
+  // Show top 20 students when search field is clicked
+  studentSearchInput.addEventListener('focus', async () => {
+    try {
+      const response = await fetch('/api/admin/students/top20');
+      if (!response.ok) throw new Error('Failed to fetch top students');
+      const students = await response.json();
+
+      studentSearchResults.innerHTML = '';
+      students.forEach(student => {
+        const li = document.createElement('li');
+        const truncatedEmail = student.email ? `${student.email.slice(0, 5)}...` : 'N/A';
+        li.innerHTML = `<span>${student.name}</span> <span class="text-gray-500 text-sm">(${truncatedEmail})</span>`;
+        li.className = 'px-4 py-2 cursor-pointer hover:bg-gray-100 flex justify-between';
+        li.addEventListener('click', () => {
+          studentSearchInput.value = student.name;
+          selectedStudentId.value = student.id;
+          studentSearchResults.classList.add('hidden');
+          document.getElementById('studentGmail').textContent = student.email || 'N/A';
+          document.getElementById('studentGmailContainer').classList.remove('hidden');
+        });
+        studentSearchResults.appendChild(li);
+      });
+
+      studentSearchResults.classList.remove('hidden');
+    } catch (error) {
+      console.error('Error fetching top students:', error);
+    }
+  });
+
+  // Existing input event listener for search
+  studentSearchInput.addEventListener('input', async () => {
+    const query = studentSearchInput.value.trim();
+    if (query.length < 2) {
+      return;
+    }
+
+    try {
+      const response = await fetch(`/api/admin/students/search?keyword=${encodeURIComponent(query)}`);
+      if (!response.ok) throw new Error('Failed to fetch students');
+      const students = await response.json();
+
+      studentSearchResults.innerHTML = '';
+      students.forEach(student => {
+        const li = document.createElement('li');
+        const truncatedEmail = student.email ? `${student.email.slice(0, 5)}...` : 'N/A';
+        li.innerHTML = `<span>${student.name}</span> <span class="text-gray-500 text-sm">(${truncatedEmail})</span>`;
+        li.className = 'px-4 py-2 cursor-pointer hover:bg-gray-100 flex justify-between';
+        li.addEventListener('click', () => {
+          studentSearchInput.value = student.name;
+          selectedStudentId.value = student.id;
+          studentSearchResults.classList.add('hidden');
+          document.getElementById('studentGmail').textContent = student.email || 'N/A';
+          document.getElementById('studentGmailContainer').classList.remove('hidden');
+        });
+        studentSearchResults.appendChild(li);
+      });
+
+      studentSearchResults.classList.remove('hidden');
+    } catch (error) {
+      console.error('Error fetching students:', error);
+    }
+  });
+
+  document.addEventListener('click', (event) => {
+    if (!studentSearchResults.contains(event.target) && event.target !== studentSearchInput) {
+      studentSearchResults.classList.add('hidden');
+    }
+  });
+  // Course selection logic
+  courseSearchInput.addEventListener('focus', async () => {
+    try {
+      const response = await fetch('/api/courses/top10');
+      if (!response.ok) throw new Error('Failed to fetch top courses');
+      const courses = await response.json();
+
+      courseSearchResults.innerHTML = '';
+      courses.forEach(course => {
+        const li = document.createElement('li');
+        li.textContent = course.name;
+        li.className = 'px-4 py-2 cursor-pointer hover:bg-gray-100';
+        li.addEventListener('click', () => {
+          if (!selectedCourseIds.includes(course.id)) {
+            selectedCourseIds.push(course.id);
+            const courseTag = document.createElement('span');
+            courseTag.textContent = course.name;
+            courseTag.className = 'inline-block bg-gray-200 text-gray-800 text-sm px-2 py-1 rounded mr-2 mb-2';
+            courseTag.addEventListener('click', () => {
+              selectedCourseIds.splice(selectedCourseIds.indexOf(course.id), 1);
+              courseTag.remove();
+            });
+            selectedCoursesContainer.appendChild(courseTag);
+          }
+          courseSearchInput.value = '';
+          courseSearchResults.classList.add('hidden');
+        });
+        courseSearchResults.appendChild(li);
+      });
+
+      courseSearchResults.classList.remove('hidden');
+    } catch (error) {
+      console.error('Error fetching top courses:', error);
+    }
+  });
+
+  // Form submission logic
+  document.getElementById('addEnrollmentForm').addEventListener('submit', async (event) => {
+    event.preventDefault();
+
+    // Validate inputs
+    if (!selectedStudentId.value || selectedCourseIds.length === 0) {
+      alert('Please select a student and at least one course.');
+      return;
+    }
+
+    try {
+      // Construct URL with query parameters
+      const url = new URL('/api/enrollments/batch', window.location.origin);
+      url.searchParams.append('studentId', selectedStudentId.value);
+      url.searchParams.append('semester', document.getElementById('semester').value);
+      url.searchParams.append('academicYear', document.getElementById('academicYear').value);
+
+      // Send request
+      const response = await fetch(url, {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+          // Add other headers if needed (e.g., authorization)
+        },
+        body: JSON.stringify(selectedCourseIds) // Send ONLY the array of course IDs
+      });
+
+      if (response.ok) {
+        const result = await response.json();
+        alert(`Successfully enrolled student in ${result.length} courses!`);
+
+        // Reset form and close modal
+        selectedStudentId.value = '';
+        studentSearchInput.value = '';
+        selectedCourseIds.length = 0;
+        selectedCoursesContainer.innerHTML = '';
+        document.getElementById('addEnrollmentModal').classList.add('hidden');
+
+        // Refresh the enrollments table
+        fetchActiveEnrollments();
+      } else {
+        const error = await response.text();
+        alert(`Enrollment failed: ${error}`);
+      }
+    } catch (error) {
+      console.error('Error:', error);
+      alert('Network error - please try again');
+    }
+  });
+
+  let currentPage = 0;
+  const pageSize = 10;
+
+  async function fetchPaginatedEnrollments(page) {
+    try {
+      const response = await fetch(`/api/enrollments/pageable?page=${page}&size=${pageSize}`);
+      if (!response.ok) throw new Error('Failed to fetch paginated enrollments');
+      const data = await response.json();
+
+      const tableBody = document.getElementById('activeEnrollmentsTableBody');
+      tableBody.innerHTML = '';
+
+      // In your fetchPaginatedEnrollments function:
+      data.enrollments.forEach(enrollment => {
+        const row = document.createElement('tr');
+        row.className = 'hover:bg-gray-200 cursor-pointer';
+        row.innerHTML = `
+        <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-800">${enrollment.student?.name || 'N/A'}</td>
+        <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-800">${enrollment.course?.name|| 'N/A'}</td>
+        <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-800">${enrollment.semester || 'N/A'}</td>
+        <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-800">${enrollment.academicYear || 'N/A'}</td>
+        <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-800">${enrollment.status || 'N/A'}</td>
+    `;
+
+        row.addEventListener('click', () => {
+          console.log("Clicked enrollment:", enrollment); // Debug log
+          openEnrollmentDetails(enrollment);
+        });
+
+        tableBody.appendChild(row);
+      });
+
+      document.getElementById('paginationInfo').textContent = `Page ${data.currentPage} of ${data.totalPages}`;
+      document.getElementById('prevPage').disabled = data.currentPage === 0;
+      document.getElementById('nextPage').disabled = !data.hasNext;
+
+      currentPage = page;
+    } catch (error) {
+      console.error('Error fetching enrollments:', error);
+    }
+  }
+
+  document.getElementById('prevPage').addEventListener('click', () => {
+    if (currentPage > 0) {
+      fetchPaginatedEnrollments(currentPage - 1);
+    }
+  });
+
+  document.getElementById('nextPage').addEventListener('click', () => {
+    fetchPaginatedEnrollments(currentPage + 1);
+  });
+
+  // Function to open enrollment details in edit modal
+  async function openEnrollmentDetails(enrollment) {
+    console.log("Opening enrollment:", enrollment);
+
+    // Populate modal fields
+    document.getElementById('editEnrollmentId').value = enrollment.enrollmentId;
+    document.getElementById('editStudentName').textContent = enrollment.student?.name || 'N/A';
+    document.getElementById('editCurrentCourse').textContent = enrollment.course?.title || 'N/A';
+
+    // Clear previous course selection
+    editSelectedCourseId.value = '';
+    editCourseSearch.value = '';
+
+    // Set other fields
+    document.getElementById('editAcademicYear').value = enrollment.academicYear || '';
+    document.getElementById('editSemester').value = enrollment.semester || '1';
+    document.getElementById('editStatus').value = enrollment.status || 'ACTIVE';
+
+
+    // Load available courses for dropdown
+    try {
+      const response = await fetch('/api/courses');
+      if (!response.ok) throw new Error('Failed to fetch courses');
+      const courses = await response.json();
+
+      const courseSelect = document.getElementById('editCourseId');
+      courseSelect.innerHTML = '<option value="">-- Keep current course --</option>';
+
+      courses.forEach(course => {
+        const option = document.createElement('option');
+        option.value = course.id;
+        option.textContent = course.title;
+        option.selected = (course.id === enrollment.course?.id);
+        courseSelect.appendChild(option);
+      });
+    } catch (error) {
+      console.error('Error loading courses:', error);
+    }
+
+    // Show modal
+    document.getElementById('editEnrollmentModal').classList.remove('hidden');
+  }
+
+  // Handle edit form submission
+  document.getElementById('editEnrollmentForm').addEventListener('submit', async (event) => {
+    event.preventDefault();
+
+    const enrollmentId = document.getElementById('editEnrollmentId').value;
+    const request = {
+      courseId: editSelectedCourseId.value || null, // Use the selected course ID
+      academicYear: document.getElementById('editAcademicYear').value || null,
+      semester: document.getElementById('editSemester').value || null,
+      status: document.getElementById('editStatus').value || null
+    };
+
+    // Remove null values (clean request)
+    const cleanRequest = Object.fromEntries(
+            Object.entries(request).filter(([_, v]) => v !== null)
+    );
+
+    try {
+      const response = await fetch(`/api/enrollments/${enrollmentId}`, {
+        method: 'PATCH',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify(cleanRequest)
+      });
+
+      if (response.ok) {
+        alert('Enrollment updated successfully!');
+        document.getElementById('editEnrollmentModal').classList.add('hidden');
+        fetchPaginatedEnrollments(currentPage); // Refresh the table
+      } else {
+        const error = await response.text();
+        alert(`Update failed: ${error}`);
+      }
+    } catch (error) {
+      console.error('Error:', error);
+      alert('Network error - please try again');
+    }
+  });
+
+  // Close modal handlers
+  document.getElementById('closeEditModalButton').addEventListener('click', () => {
+    document.getElementById('editEnrollmentModal').classList.add('hidden');
+  });
+
+  // Edit Modal Course Search Elements
+  const editCourseSearch = document.getElementById('editCourseSearch');
+  const editCourseResults = document.getElementById('editCourseSearchResults');
+  const editSelectedCourseId = document.getElementById('editSelectedCourseId');
+
+  // Course search for Edit Modal
+  editCourseSearch.addEventListener('focus', async () => {
+    try {
+      const response = await fetch('/api/courses/top10');
+      if (!response.ok) throw new Error('Failed to fetch top courses');
+      const courses = await response.json();
+
+      editCourseResults.innerHTML = '';
+      courses.forEach(course => {
+        const li = document.createElement('li');
+        li.textContent = course.name;
+        li.className = 'px-4 py-2 cursor-pointer hover:bg-gray-100';
+        li.addEventListener('click', () => {
+          editSelectedCourseId.value = course.id;
+          editCourseSearch.value = course.name; // Show selected course name
+          editCourseResults.classList.add('hidden');
+        });
+        editCourseResults.appendChild(li);
+      });
+
+      editCourseResults.classList.remove('hidden');
+    } catch (error) {
+      console.error('Error fetching top courses:', error);
+    }
+  });
+
+  // Close dropdown when clicking outside
+  document.addEventListener('click', (e) => {
+    if (!editCourseResults.contains(e.target) && e.target !== editCourseSearch) {
+      editCourseResults.classList.add('hidden');
+    }
+  });
+
+  // Get the filter button and filter form container
+  const filterButton = document.getElementById('filterButton');
+  const filterFormContainer = document.getElementById('filterFormContainer');
+
+  // Add click event listener to toggle the filter form visibility
+  filterButton.addEventListener('click', () => {
+    filterFormContainer.classList.toggle('hidden');
+  });
+
+  // Get filter elements
+  const filterStudentInput = document.getElementById('filterStudent');
+  const filterStudentResults = document.getElementById('filterStudentResults');
+  let selectedStudentIdForFilter = null;
+
+  // Handle student search input in filter
+  filterStudentInput.addEventListener('input', async () => {
+    const query = filterStudentInput.value.trim();
+    if (query.length < 2) {
+      filterStudentResults.classList.add('hidden');
+      selectedStudentIdForFilter = null;
+      fetchPaginatedEnrollments(0); // Reset to show all enrollments
+      return;
+    }
+
+    try {
+      const response = await fetch(`/api/admin/students/search?keyword=${encodeURIComponent(query)}`);
+      if (!response.ok) throw new Error('Failed to fetch students');
+      const students = await response.json();
+
+      filterStudentResults.innerHTML = '';
+      students.forEach(student => {
+        const li = document.createElement('li');
+        const truncatedEmail = student.email ? `${student.email.slice(0, 5)}...` : 'N/A';
+        li.innerHTML = `<span>${student.name}</span> <span class="text-gray-500 text-sm">(${truncatedEmail})</span>`;
+        li.className = 'px-4 py-2 cursor-pointer hover:bg-gray-100 flex justify-between';
+        li.addEventListener('click', () => {
+          filterStudentInput.value = student.name;
+          selectedStudentIdForFilter = student.id;
+          filterStudentResults.classList.add('hidden');
+          fetchEnrollmentsByStudent(student.id);
+        });
+        filterStudentResults.appendChild(li);
+      });
+
+      filterStudentResults.classList.remove('hidden');
+    } catch (error) {
+      console.error('Error fetching students:', error);
+    }
+  });
+
+  // Function to fetch enrollments by student
+  async function fetchEnrollmentsByStudent(studentId) {
+    try {
+      const response = await fetch(`/api/enrollments/student/${studentId}`);
+      if (!response.ok) throw new Error('Failed to fetch enrollments');
+      const enrollments = await response.json();
+
+      updateEnrollmentsTable({
+        enrollments: enrollments,
+        currentPage: 0,
+        totalPages: 1,
+        hasNext: false
+      });
+
+      // Update pagination info
+      document.getElementById('paginationInfo').textContent = `Page 1 of 1`;
+      document.getElementById('prevPage').disabled = true;
+      document.getElementById('nextPage').disabled = true;
+
+    } catch (error) {
+      console.error('Error fetching enrollments by student:', error);
+      alert('Failed to load enrollments for this student');
+    }
+  }
+
+  // Update your existing fetchPaginatedEnrollments to consider filters
+  async function fetchPaginatedEnrollments(page) {
+    try {
+      let url;
+      if (selectedStudentIdForFilter) {
+        // If a student is selected, use the student-specific endpoint
+        url = `/api/enrollments/student/${selectedStudentIdForFilter}`;
+      } else {
+        // Otherwise use the regular paginated endpoint
+        url = `/api/enrollments/pageable?page=${page}&size=${pageSize}`;
+      }
+
+      const response = await fetch(url);
+      if (!response.ok) throw new Error('Failed to fetch enrollments');
+      const data = await response.json();
+
+      // Handle both response formats (array for student endpoint, paginated object for pageable)
+      if (Array.isArray(data)) {
+        updateEnrollmentsTable({
+          enrollments: data,
+          currentPage: 0,
+          totalPages: 1,
+          hasNext: false
+        });
+        document.getElementById('paginationInfo').textContent = `Page 1 of 1`;
+        document.getElementById('prevPage').disabled = true;
+        document.getElementById('nextPage').disabled = true;
+      } else {
+        updateEnrollmentsTable(data);
+        document.getElementById('paginationInfo').textContent = `Page ${data.currentPage + 1} of ${data.totalPages}`;
+        document.getElementById('prevPage').disabled = data.currentPage === 0;
+        document.getElementById('nextPage').disabled = !data.hasNext;
+      }
+
+      currentPage = page;
+    } catch (error) {
+      console.error('Error fetching enrollments:', error);
+    }
+  }
+
+  // Update your updateEnrollmentsTable function to handle both formats
+  function updateEnrollmentsTable(data) {
+    const tableBody = document.getElementById('activeEnrollmentsTableBody');
+    tableBody.innerHTML = '';
+
+    const enrollments = Array.isArray(data) ? data : data.enrollments;
+
+    enrollments.forEach(enrollment => {
+      const row = document.createElement('tr');
+      row.className = 'hover:bg-gray-200 cursor-pointer';
+      row.innerHTML = `
+      <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-800">${enrollment.student?.name || 'N/A'}</td>
+      <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-800">${enrollment.course?.name || 'N/A'}</td>
+      <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-800">${enrollment.semester || 'N/A'}</td>
+      <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-800">${enrollment.academicYear || 'N/A'}</td>
+      <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-800">${enrollment.status || 'N/A'}</td>
+    `;
+
+      row.addEventListener('click', () => {
+        openEnrollmentDetails(enrollment);
+      });
+
+      tableBody.appendChild(row);
+    });
+  }
+
+  const clearStudentFilterBtn = document.getElementById('clearStudentFilter');
+
+  // Show/hide clear button based on input
+  filterStudentInput.addEventListener('input', () => {
+    clearStudentFilterBtn.classList.toggle('hidden', !filterStudentInput.value);
+  });
+
+  // Clear filter functionality
+  clearStudentFilterBtn.addEventListener('click', () => {
+    filterStudentInput.value = '';
+    selectedStudentIdForFilter = null;
+    clearStudentFilterBtn.classList.add('hidden');
+    fetchPaginatedEnrollments(0);
+  });
+
+  const filterCourseInput = document.getElementById('filterCourse');
+  const filterCourseResults = document.getElementById('filterCourseResults');
+  const clearCourseFilterBtn = document.getElementById('clearCourseFilter');
+  let selectedCourseIdForFilter = null;
+
+  // Handle Course search input in filter
+  filterCourseInput.addEventListener('input', async () => {
+    const query = filterCourseInput.value.trim();
+    if (query.length < 2) {
+      filterCourseResults.classList.add('hidden');
+      selectedCourseIdForFilter = null;
+      fetchPaginatedEnrollments(0); // Reset to show all enrollments
+      return;
+    }
+
+    try {
+      const response = await fetch(`/api/courses/search?keyword=${encodeURIComponent(query)}`);
+      if (!response.ok) throw new Error('Failed to fetch courses');
+      const courses = await response.json();
+
+      filterCourseResults.innerHTML = '';
+      courses.forEach(course => {
+        const li = document.createElement('li');
+        li.textContent = course.name;
+        li.className = 'px-4 py-2 cursor-pointer hover:bg-gray-100';
+        li.addEventListener('click', () => {
+          filterCourseInput.value = course.name;
+          selectedCourseIdForFilter = course.id;
+          filterCourseResults.classList.add('hidden');
+          fetchEnrollmentsByCourse(course.id);
+        });
+        filterCourseResults.appendChild(li);
+      });
+
+      filterCourseResults.classList.remove('hidden');
+    } catch (error) {
+      console.error('Error fetching courses:', error);
+    }
+  });
+
+  // Fetch enrollments by Course ID
+  async function fetchEnrollmentsByCourse(courseId) {
+    try {
+      const response = await fetch(`/api/enrollments/course/${courseId}`);
+      if (!response.ok) throw new Error('Failed to fetch enrollments');
+      const enrollments = await response.json();
+
+      updateEnrollmentsTable({
+        enrollments: enrollments,
+        currentPage: 0,
+        totalPages: 1,
+        hasNext: false
+      });
+
+      // Update pagination info
+      document.getElementById('paginationInfo').textContent = `Page 1 of 1`;
+      document.getElementById('prevPage').disabled = true;
+      document.getElementById('nextPage').disabled = true;
+
+    } catch (error) {
+      console.error('Error fetching enrollments by course:', error);
+      alert('Failed to load enrollments for this course');
+    }
+  }
+
+  // Clear Course filter
+  clearCourseFilterBtn.addEventListener('click', () => {
+    filterCourseInput.value = '';
+    selectedCourseIdForFilter = null;
+    clearCourseFilterBtn.classList.add('hidden');
+    fetchPaginatedEnrollments(0);
+  });
+
+  // Show/hide clear button based on input
+  filterCourseInput.addEventListener('input', () => {
+    clearCourseFilterBtn.classList.toggle('hidden', !filterCourseInput.value);
+  });
+
+  // Get the Enroll button and Add Enrollment Modal
+  const enrollButton = document.getElementById('enrollButton');
+  const addEnrollmentModal = document.getElementById('addEnrollmentModal');
+  const closeModalButton = document.getElementById('closeModalButton');
+
+  // Add click event listener to the Enroll button
+  enrollButton.addEventListener('click', () => {
+    addEnrollmentModal.classList.remove('hidden'); // Show the modal
+  });
+
+  // Add click event listener to the Close button in the modal
+  closeModalButton.addEventListener('click', () => {
+    addEnrollmentModal.classList.add('hidden'); // Hide the modal
+  });
+
+  fetchPaginatedEnrollments(0);
+</script>
+</body>
+</html>
